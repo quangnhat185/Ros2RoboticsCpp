@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "memory": "cpp"
+    },
+    "editor.wordWrap": "on",
+    "terminal.integrated.allowChords": false,
+    "python.envFile": "${workspaceFolder}/.vscode/.env"
+}
+
+

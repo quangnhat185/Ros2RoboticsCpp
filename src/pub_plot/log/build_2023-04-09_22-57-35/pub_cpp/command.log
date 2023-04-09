@@ -1,0 +1,4 @@
+Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8
+Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '0': /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8
+Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp
+Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '0': /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp

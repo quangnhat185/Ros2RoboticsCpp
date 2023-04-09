@@ -1,0 +1,21 @@
+[0.697s] Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/src/py_plotting': PYTHONPATH=/home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/prefix_override:/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/py_plotting build --build-base /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/build install --record /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/install.log --single-version-externally-managed
+[0.958s] running egg_info
+[0.959s] writing ../../build/py_plotting/py_plotting.egg-info/PKG-INFO
+[0.959s] writing dependency_links to ../../build/py_plotting/py_plotting.egg-info/dependency_links.txt
+[0.959s] writing entry points to ../../build/py_plotting/py_plotting.egg-info/entry_points.txt
+[0.960s] writing requirements to ../../build/py_plotting/py_plotting.egg-info/requires.txt
+[0.960s] writing top-level names to ../../build/py_plotting/py_plotting.egg-info/top_level.txt
+[0.961s] reading manifest file '../../build/py_plotting/py_plotting.egg-info/SOURCES.txt'
+[0.962s] writing manifest file '../../build/py_plotting/py_plotting.egg-info/SOURCES.txt'
+[0.962s] running build
+[0.962s] running build_py
+[0.962s] running install
+[0.963s] running install_lib
+[0.964s] running install_data
+[0.964s] running install_egg_info
+[0.966s] removing '/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting-0.0.0-py3.10.egg-info' (and everything under it)
+[0.966s] Copying ../../build/py_plotting/py_plotting.egg-info to /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting-0.0.0-py3.10.egg-info
+[0.967s] running install_scripts
+[0.985s] Installing sin_plotting script to /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/py_plotting
+[0.986s] writing list of installed files to '/home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/install.log'
+[1.016s] Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/src/py_plotting' returned '0': PYTHONPATH=/home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/prefix_override:/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/py_plotting build --build-base /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/build install --record /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/install.log --single-version-externally-managed

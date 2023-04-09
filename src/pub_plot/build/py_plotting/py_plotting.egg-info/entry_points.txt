@@ -1,0 +1,3 @@
+[console_scripts]
+sin_plotting = py_plotting.sin_plotting:main
+

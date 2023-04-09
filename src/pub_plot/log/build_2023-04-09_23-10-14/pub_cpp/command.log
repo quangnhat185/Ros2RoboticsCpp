@@ -1,0 +1,2 @@
+Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8
+Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8

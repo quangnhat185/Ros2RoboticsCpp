@@ -1,0 +1,68 @@
+[0.028s] Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake /home/quang/ros2_robotics_cpp/src/pub_plot/src/pub_cpp -DCMAKE_INSTALL_PREFIX=/home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp
+[0.087s] -- The C compiler identification is GNU 11.3.0
+[0.155s] -- The CXX compiler identification is GNU 11.3.0
+[0.162s] -- Detecting C compiler ABI info
+[0.222s] -- Detecting C compiler ABI info - done
+[0.229s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.229s] -- Detecting C compile features
+[0.230s] -- Detecting C compile features - done
+[0.233s] -- Detecting CXX compiler ABI info
+[0.300s] -- Detecting CXX compiler ABI info - done
+[0.308s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.308s] -- Detecting CXX compile features
+[0.308s] -- Detecting CXX compile features - done
+[0.310s] -- Found ament_cmake: 1.3.3 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.489s] -- Found Python3: /usr/bin/python3.10 (found version "3.10.6") found components: Interpreter 
+[0.567s] -- Found rclcpp: 16.0.2 (/opt/ros/humble/share/rclcpp/cmake)
+[0.607s] -- Found rosidl_generator_c: 3.1.4 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.611s] -- Found rosidl_adapter: 3.1.4 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.619s] -- Found rosidl_generator_cpp: 3.1.4 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.634s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.653s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.722s] -- Found rmw_implementation_cmake: 6.1.1 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.724s] -- Found rmw_fastrtps_cpp: 6.2.2 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.807s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.833s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.876s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.884s] -- Looking for pthread.h
+[0.949s] -- Looking for pthread.h - found
+[0.950s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[1.020s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[1.022s] -- Found Threads: TRUE  
+[1.237s] -- Found ament_lint_auto: 0.12.4 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.309s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[1.309s] -- Configured cppcheck include dirs: 
+[1.309s] -- Configured cppcheck exclude dirs and/or files: 
+[1.309s] -- Added test 'lint_cmake' to check CMake code style
+[1.310s] -- Added test 'uncrustify' to check C / C++ code style
+[1.310s] -- Configured uncrustify additional arguments: 
+[1.311s] -- Added test 'xmllint' to check XML markup files
+[1.312s] -- Configuring done
+[1.321s] -- Generating done
+[1.323s] -- Build files have been written to: /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp
+[1.334s] Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake /home/quang/ros2_robotics_cpp/src/pub_plot/src/pub_cpp -DCMAKE_INSTALL_PREFIX=/home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp
+[1.336s] Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8
+[1.381s] [ 50%] [32mBuilding CXX object CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o[0m
+[5.355s] [100%] [32m[1mLinking CXX executable sin_pub[0m
+[5.576s] [100%] Built target sin_pub
+[5.588s] Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp -- -j8 -l8
+[5.619s] Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp
+[5.625s] -- Install configuration: ""
+[5.625s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/lib/pub_cpp/sin_pub
+[5.627s] -- Set runtime path of "/home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/lib/pub_cpp/sin_pub" to ""
+[5.627s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/ament_index/resource_index/package_run_dependencies/pub_cpp
+[5.627s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/ament_index/resource_index/parent_prefix_path/pub_cpp
+[5.627s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.sh
+[5.627s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.dsv
+[5.627s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.sh
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.dsv
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.bash
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.sh
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.zsh
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.dsv
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/package.dsv
+[5.628s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/ament_index/resource_index/packages/pub_cpp
+[5.629s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig.cmake
+[5.629s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig-version.cmake
+[5.629s] -- Installing: /home/quang/ros2_robotics_cpp/src/pub_plot/install/pub_cpp/share/pub_cpp/package.xml
+[5.636s] Invoked command in '/home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/quang/ros2_robotics_cpp/install/py_plotting:/opt/ros/humble /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/src/pub_plot/build/pub_cpp

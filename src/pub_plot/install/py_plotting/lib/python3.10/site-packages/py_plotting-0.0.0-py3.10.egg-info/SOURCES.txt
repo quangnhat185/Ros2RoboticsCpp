@@ -1,0 +1,16 @@
+package.xml
+setup.cfg
+setup.py
+../../build/py_plotting/py_plotting.egg-info/PKG-INFO
+../../build/py_plotting/py_plotting.egg-info/SOURCES.txt
+../../build/py_plotting/py_plotting.egg-info/dependency_links.txt
+../../build/py_plotting/py_plotting.egg-info/entry_points.txt
+../../build/py_plotting/py_plotting.egg-info/requires.txt
+../../build/py_plotting/py_plotting.egg-info/top_level.txt
+../../build/py_plotting/py_plotting.egg-info/zip-safe
+py_plotting/__init__.py
+py_plotting/sin_plotting.py
+resource/py_plotting
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py

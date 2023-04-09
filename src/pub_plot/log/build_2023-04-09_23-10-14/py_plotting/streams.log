@@ -1,0 +1,24 @@
+[0.606s] Invoking command in '/home/quang/ros2_robotics_cpp/src/pub_plot/src/py_plotting': PYTHONPATH=/home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/prefix_override:/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/py_plotting build --build-base /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/build install --record /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/install.log --single-version-externally-managed
+[0.818s] running egg_info
+[0.819s] writing ../../build/py_plotting/py_plotting.egg-info/PKG-INFO
+[0.819s] writing dependency_links to ../../build/py_plotting/py_plotting.egg-info/dependency_links.txt
+[0.819s] writing entry points to ../../build/py_plotting/py_plotting.egg-info/entry_points.txt
+[0.819s] writing requirements to ../../build/py_plotting/py_plotting.egg-info/requires.txt
+[0.819s] writing top-level names to ../../build/py_plotting/py_plotting.egg-info/top_level.txt
+[0.821s] reading manifest file '../../build/py_plotting/py_plotting.egg-info/SOURCES.txt'
+[0.845s] writing manifest file '../../build/py_plotting/py_plotting.egg-info/SOURCES.txt'
+[0.845s] running build
+[0.845s] running build_py
+[0.845s] copying py_plotting/sin_plotting.py -> /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/build/lib/py_plotting
+[0.845s] running install
+[0.845s] running install_lib
+[0.846s] copying /home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/build/lib/py_plotting/sin_plotting.py -> /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting
+[0.846s] byte-compiling /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting/sin_plotting.py to sin_plotting.cpython-310.pyc
+[0.847s] running install_data
+[0.847s] copying package.xml -> /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/share/py_plotting
+[0.847s] running install_egg_info
+[0.849s] removing '/home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting-0.0.0-py3.10.egg-info' (and everything under it)
+[0.849s] Copying ../../build/py_plotting/py_plotting.egg-info to /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting-0.0.0-py3.10.egg-info
+[0.871s] running install_scripts
+[0.889s] Installing sin_plotting script to /home/quang/ros2_robotics_cpp/src/pub_plot/install/py_plotting/lib/py_plotting
+[0.889s] writing list of installed files to '/home/quang/ros2_robotics_cpp/src/pub_plot/build/py_plotting/install.log'
