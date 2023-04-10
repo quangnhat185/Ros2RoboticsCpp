@@ -665,17 +665,23 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
   /opt/ros/humble/include/rclcpp/rclcpp/wait_set_policies/thread_safe_synchronization.hpp \
   /opt/ros/humble/include/rclcpp/rclcpp/wait_set_policies/detail/write_preferring_read_write_lock.hpp \
   /opt/ros/humble/include/rclcpp/rclcpp/wait_set_template.hpp \
-  /opt/ros/humble/include/std_msgs/std_msgs/msg/float32.hpp \
-  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__struct.hpp \
-  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__builder.hpp \
-  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__traits.hpp
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/float32_multi_array.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__struct.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_layout__struct.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_dimension__struct.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__builder.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__traits.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_layout__traits.hpp \
+  /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_dimension__traits.hpp
 
 
-/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__traits.hpp:
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_layout__traits.hpp:
 
-/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__struct.hpp:
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_dimension__struct.hpp:
 
-/opt/ros/humble/include/std_msgs/std_msgs/msg/float32.hpp:
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__struct.hpp:
+
+/opt/ros/humble/include/std_msgs/std_msgs/msg/float32_multi_array.hpp:
 
 /opt/ros/humble/include/rclcpp/rclcpp/wait_set_policies/thread_safe_synchronization.hpp:
 
@@ -802,6 +808,8 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
 /opt/ros/humble/include/rcl_interfaces/rcl_interfaces/msg/detail/list_parameters_result__struct.hpp:
 
 /opt/ros/humble/include/rcl_interfaces/rcl_interfaces/msg/list_parameters_result.hpp:
+
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__builder.hpp:
 
 /opt/ros/humble/include/rclcpp/rclcpp/node.hpp:
 
@@ -999,6 +1007,8 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
 
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32_multi_array__traits.hpp:
+
 /usr/include/c++/11/bits/stl_bvector.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
@@ -1104,6 +1114,8 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_layout__struct.hpp:
 
 /opt/ros/humble/include/rcpputils/rcpputils/pointer_traits.hpp:
 
@@ -1234,8 +1246,6 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
 /usr/include/c++/11/bits/enable_special_members.h:
 
 /usr/include/c++/11/bits/basic_ios.tcc:
-
-/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/float32__builder.hpp:
 
 /opt/ros/humble/include/rcl_interfaces/rcl_interfaces/msg/parameter_value.hpp:
 
@@ -1954,6 +1964,8 @@ CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o: /home/quang/ros2_robotics_cpp/pub_plot
 /opt/ros/humble/include/rclcpp/rclcpp/experimental/subscription_intra_process_buffer.hpp:
 
 /opt/ros/humble/include/rclcpp/rclcpp/experimental/create_intra_process_buffer.hpp:
+
+/opt/ros/humble/include/std_msgs/std_msgs/msg/detail/multi_array_dimension__traits.hpp:
 
 /opt/ros/humble/include/builtin_interfaces/builtin_interfaces/msg/detail/time__struct.hpp:
 

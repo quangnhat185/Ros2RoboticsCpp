@@ -5,36 +5,39 @@
 
 #include <cmath>
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
 
 using namespace std::chrono_literals;
 
 class MinimalPublisher : public rclcpp::Node
 {   
     private:
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr publisher_;
+        rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr publisher_;
 
     public:
-        int count = 0;
+        double count = 0;
         MinimalPublisher() : Node("sin_publisher")
         {
-            publisher_ = this->create_publisher<std_msgs::msg::Float32>("sin_signal", 10);
+            publisher_ = this->create_publisher<std_msgs::msg::Float32MultiArray>("sin_signal", 10);
         }
+
+        float pi = std::atan(1) * 4;
 
     void run()
     {
-        rclcpp::Rate rate(10);
+        rclcpp::Rate rate(100);
         while(rclcpp::ok()){
-            auto message = std::make_unique<std_msgs::msg::Float32>();
-            float rad_angle = count / 10 * 3.14;
+            auto message = std::make_unique<std_msgs::msg::Float32MultiArray>();
+            double rad_angle = count  * 2 * pi;
 
-            message->data = std::sin(rad_angle);
-            RCLCPP_INFO(this->get_logger(), "Publishing: %f",message->data);
-            
+            message->data.push_back(rad_angle);
+            message->data.push_back(std::sin(rad_angle));
+
+            RCLCPP_INFO(this->get_logger(), "Publishing: %f and %f",message->data[0], message->data[1]);
+
             publisher_->publish(std::move(message));
 
-
-            count++;
+            count += 0.005;
             rate.sleep();
         }
     }

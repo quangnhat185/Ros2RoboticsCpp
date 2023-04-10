@@ -1,0 +1,6 @@
+{
+  "package_name": "pub_cpp",
+  "non_idl_tuples": [
+    "/home/quang/ros2_robotics_cpp/pub_plot/src/pub_cpp:msg/SinAngle.msg"
+  ]
+}
