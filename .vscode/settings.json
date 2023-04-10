@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "memory": "cpp"
+        "memory": "cpp",
+        "cmath": "cpp"
     },
     "editor.wordWrap": "on",
     "terminal.integrated.allowChords": false,

@@ -1,0 +1,24 @@
+In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/logging.hpp:24[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/client.hpp:40[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/callback_group.hpp:23[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/any_executable.hpp:20[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategy.hpp:25[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategies.hpp:18[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor_options.hpp:20[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor.hpp:37[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp:25[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:21[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+                 from [01m[K/home/quang/ros2_robotics_cpp/pub_plot/src/pub_cpp/src/sin_pub.cpp:7[m[K:
+[01m[K/home/quang/ros2_robotics_cpp/pub_plot/src/pub_cpp/src/sin_pub.cpp:[m[K In member function ‘[01m[Kvoid MinimalPublisher::run()[m[K’:
+[01m[K/home/quang/ros2_robotics_cpp/pub_plot/src/pub_cpp/src/sin_pub.cpp:35:45:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%s[m[K’ expects argument of type ‘[01m[Kchar*[m[K’, but argument 5 has type ‘[01m[Kdouble[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wformat=-Wformat=]8;;[m[K]
+   35 |             RCLCPP_INFO(this->get_logger(), [01;35m[K"Publishing: %s"[m[K,[32m[Kmessage->data[m[K);
+      |                                             [01;35m[K^~~~~~~~~~~~~~~~[m[K [32m[K~~~~~~~~~~~~~[m[K
+      |                                                                       [32m[K|[m[K
+      |                                                                       [32m[Kdouble[m[K
+[01m[K/home/quang/ros2_robotics_cpp/pub_plot/src/pub_cpp/src/sin_pub.cpp:35:59:[m[K [01;36m[Knote: [m[Kformat string is defined here
+   35 |             RCLCPP_INFO(this->get_logger(), "Publishing: [01;36m[K%s[m[K",message->data);
+      |                                                          [01;36m[K~^[m[K
+      |                                                           [01;36m[K|[m[K
+      |                                                           [01;36m[Kchar*[m[K
+      |                                                          [32m[K%f[m[K

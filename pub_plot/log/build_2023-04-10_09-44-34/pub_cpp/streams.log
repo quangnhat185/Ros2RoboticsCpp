@@ -1,0 +1,26 @@
+[0.038s] Invoking command in '/home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble:/home/quang/ros2_robotics_cpp/pub_plot/install/py_plotting /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp -- -j8 -l8
+[0.172s] [35m[1mConsolidate compiler generated dependencies of target sin_pub[0m
+[0.190s] [ 50%] [32mBuilding CXX object CMakeFiles/sin_pub.dir/src/sin_pub.cpp.o[0m
+[4.411s] [100%] [32m[1mLinking CXX executable sin_pub[0m
+[4.599s] [100%] Built target sin_pub
+[4.609s] Invoked command in '/home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble:/home/quang/ros2_robotics_cpp/pub_plot/install/py_plotting /usr/bin/cmake --build /home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp -- -j8 -l8
+[4.641s] Invoking command in '/home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble:/home/quang/ros2_robotics_cpp/pub_plot/install/py_plotting /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp
+[4.650s] -- Install configuration: ""
+[4.651s] -- Installing: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/lib/pub_cpp/sin_pub
+[4.652s] -- Set runtime path of "/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/lib/pub_cpp/sin_pub" to ""
+[4.653s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/package_run_dependencies/pub_cpp
+[4.653s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/parent_prefix_path/pub_cpp
+[4.653s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.sh
+[4.653s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.dsv
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.sh
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.dsv
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.bash
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.sh
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.zsh
+[4.654s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.dsv
+[4.654s] -- Installing: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/package.dsv
+[4.655s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/packages/pub_cpp
+[4.655s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig.cmake
+[4.662s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig-version.cmake
+[4.662s] -- Up-to-date: /home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/package.xml
+[4.662s] Invoked command in '/home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble:/home/quang/ros2_robotics_cpp/pub_plot/install/py_plotting /usr/bin/cmake --install /home/quang/ros2_robotics_cpp/pub_plot/build/pub_cpp

@@ -1,0 +1,17 @@
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/lib/pub_cpp/sin_pub
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/launch/sin_signal_plot.launch.py
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/package_run_dependencies/pub_cpp
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/parent_prefix_path/pub_cpp
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.sh
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/ament_prefix_path.dsv
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.sh
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/environment/path.dsv
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.bash
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.sh
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.zsh
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/local_setup.dsv
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/package.dsv
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/ament_index/resource_index/packages/pub_cpp
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig.cmake
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/cmake/pub_cppConfig-version.cmake
+/home/quang/ros2_robotics_cpp/pub_plot/install/pub_cpp/share/pub_cpp/package.xml
