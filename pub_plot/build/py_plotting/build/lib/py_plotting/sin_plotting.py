@@ -1,8 +1,12 @@
+#!/home/quang/miniconda3/bin/python3
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
 
 import matplotlib.pyplot as plt
+import ipdb; ipdb.set_trace()
+import tensorflow
 
 class MinimalSubscriber(Node):
 

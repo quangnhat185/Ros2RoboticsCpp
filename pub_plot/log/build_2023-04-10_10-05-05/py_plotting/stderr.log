@@ -1,5 +1,0 @@
-  File "/home/quang/ros2_robotics_cpp/pub_plot/install/py_plotting/lib/python3.10/site-packages/py_plotting/sin_plotting.py", line 28
-    plt.clf()s
-             ^
-SyntaxError: invalid syntax
-
