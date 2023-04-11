@@ -20,9 +20,10 @@ class MinimalSubscriber(Node):
             10
         )
 
-        self.declare_parameter('save_img', 'false')
+        self.declare_parameter('save_img')
 
-        self.save_img = self.get_parameter('save_img').get_parameter_value().string_value
+
+        self.save_img = self.get_parameter('save_img').get_parameter_value().bool_value
 
         # self.save_img = self.get_parameter('save_img').value
 
@@ -30,7 +31,7 @@ class MinimalSubscriber(Node):
         self.y = []
         self.counter = 0
 
-        if self.save_img == 'true':
+        if self.save_img:
             if  os.path.isdir("./imgs"):
                 shutil.rmtree("./imgs")
                 os.makedirs("./imgs")
@@ -38,15 +39,15 @@ class MinimalSubscriber(Node):
                 os.makedirs("./imgs")
 
     def plotting(self, msg):
-        self.get_logger().info(f"{self.save_img}")
-        self.get_logger().info(f"{len(self.x)}")
+        # self.get_logger().info(f"{self.save_img}")
+        # self.get_logger().info(f"{len(self.x)}")
         
         plt.ylim(-1,1)
         self.x.append(msg.data[0])
         self.y.append(msg.data[1])
         plt.plot(self.x[-100:], self.y[-100:])
         
-        if (len(self.x) > 100) and (self.save_img=='true'):
+        if (len(self.x) > 100) and (self.save_img):
             # self.get_logger().info(f"{os.getcwd()}")
             plt.savefig(f"./imgs/{self.counter}.png")
             self.counter+=1

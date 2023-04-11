@@ -23,13 +23,13 @@ def generate_launch_description():
         executable='sin_plotting',
         name='sin_plotting',
         parameters=[
-            # {'save_img': LaunchConfiguration('save_img')}
-            {'save_img' : 'true'}
+            {'save_img': LaunchConfiguration('save_img')}
+            # {'save_img' : 'true'}
         ]
     )
 
-    ld.add_action(save_img_arg)
     ld.add_action(sin_pub_node)
+    ld.add_action(save_img_arg)
     ld.add_action(plotting_node)
 
     return  ld
