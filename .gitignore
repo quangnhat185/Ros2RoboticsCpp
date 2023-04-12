@@ -1,3 +1,5 @@
 .vscode/
-*/log
+log/
 *.png
+install/
+build/

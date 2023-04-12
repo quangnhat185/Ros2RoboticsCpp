@@ -1,6 +1,0 @@
-setup.py
-pub_cpp/__init__.py
-pub_cpp.egg-info/PKG-INFO
-pub_cpp.egg-info/SOURCES.txt
-pub_cpp.egg-info/dependency_links.txt
-pub_cpp.egg-info/top_level.txt
