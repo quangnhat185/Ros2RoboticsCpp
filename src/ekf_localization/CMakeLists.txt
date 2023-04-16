@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -20,5 +21,12 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+add_executable(ekf_run src/ekf_localization.cpp)
+ament_target_dependencies(ekf_run rclcpp geometry_msgs)
+
+install(TARGETS 
+ekf_run 
+DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
