@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 if(BUILD_TESTING)
@@ -23,7 +24,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(ekf_run src/ekf_localization.cpp)
-ament_target_dependencies(ekf_run rclcpp geometry_msgs)
+ament_target_dependencies(ekf_run rclcpp geometry_msgs visualization_msgs)
 
 install(TARGETS 
 ekf_run 

@@ -7,6 +7,8 @@
 #include <eigen3/Eigen/Dense>
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 
 using namespace Eigen;
@@ -14,7 +16,8 @@ using namespace Eigen;
 class EKFPublisher : public rclcpp::Node
 {
     private:
-        rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr publisher_;
+        // rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr publisher_;
+        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr publisher_;
         Matrix2d GPS_NOISE = GPS_NOISE_INIT();
         Matrix2d INPUT_NOISE = INPUT_NOISE_INIT();
             // Covariance matrix of observation noise
@@ -33,7 +36,8 @@ class EKFPublisher : public rclcpp::Node
         EKFPublisher(float dt, MatrixXd input) : Node("ekf_publisher")
         {
         // double Q[4][4];
-            publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>("robot_localizing_pose", 10);
+            // publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>("robot_localizing_pose", 10);
+            publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("robot_localizing_pose", 10);
             DT = dt;
             this->u = input;
         }
@@ -186,12 +190,18 @@ class EKFPublisher : public rclcpp::Node
             rclcpp::Rate rate(1);
             while (rclcpp::ok())
             {
-                auto pose_msg_arr = std::make_unique<geometry_msgs::msg::PoseArray>();
-                pose_msg_arr->header.stamp = this->get_clock()->now();
+                // auto pose_msg_arr = std::make_unique<geometry_msgs::msg::PoseArray>();
+                auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
+                // pose_msg_arr->header.stamp = this->get_clock()->now();
 
-                auto poseTrue = std::make_unique<geometry_msgs::msg::Pose>();
-                auto poseEst = std::make_unique<geometry_msgs::msg::Pose>();
-                auto poseDr = std::make_unique<geometry_msgs::msg::Pose>();
+
+                // auto poseTrue = std::make_unique<geometry_msgs::msg::Pose>();
+                // auto poseEst = std::make_unique<geometry_msgs::msg::Pose>();
+                // auto poseDr = std::make_unique<geometry_msgs::msg::Pose>();
+
+                auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
+                auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
+                auto markerposeDr = std::make_unique<visualization_msgs::msg::Marker>();
 
                 time += DT;
 
@@ -202,26 +212,74 @@ class EKFPublisher : public rclcpp::Node
                 xDR = obs_vec[2];
                 ud = obs_vec[3];
                 
-                poseTrue->position.x = xTrue(0, 0);
-                poseTrue->position.y = xTrue(1, 0);
-                poseTrue->orientation.z = xTrue(2, 0);
-             
-                poseDr->position.x = xDR(0, 0);
-                poseDr->position.y = xDR(1, 0);
-                poseDr->orientation.z = xDR(2, 0);                
+                auto timestamp = this->get_clock()->now();
+                markerposeTrue->header.frame_id = "map";
+                markerposeTrue->header.stamp = timestamp;
+                markerposeTrue->ns = "poseTrue";
+                markerposeTrue->id = 0;
+                markerposeTrue->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeTrue->action = visualization_msgs::msg::Marker::ADD;
+                markerposeTrue->lifetime = rclcpp::Duration(0, 0);
+                markerposeTrue->scale.x = 1;
+                markerposeTrue->scale.y = 1;
+                markerposeTrue->scale.z = 1;
+                markerposeTrue->color.a = 1;
+                markerposeTrue->color.r = 1;
+                markerposeTrue->color.g = 0;
+                markerposeTrue->color.b = 0;
+                markerposeTrue->pose.position.x = xTrue(0, 0);
+                markerposeTrue->pose.position.y = xTrue(1, 0);
+                markerposeTrue->pose.orientation.z = xTrue(2, 0);
+
+
+                markerposeDr->header.frame_id = "map";
+                markerposeDr->header.stamp = timestamp;
+                markerposeDr->ns = "poseDr";
+                markerposeDr->id = 1;                
+                markerposeDr->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeDr->action = visualization_msgs::msg::Marker::ADD;
+                markerposeDr->lifetime = rclcpp::Duration(0, 0);
+                markerposeDr->scale.x = 1;
+                markerposeDr->scale.y = 1;
+                markerposeDr->scale.z = 1;
+                markerposeDr->color.a = 1;
+                markerposeDr->color.r = 0;
+                markerposeDr->color.g = 1;
+                markerposeDr->color.b = 0;
+                markerposeDr->pose.position.x = xDR(0, 0);
+                markerposeDr->pose.position.y = xDR(1, 0);
+                markerposeDr->pose.orientation.z = xDR(2, 0);                
 
                 std::vector<MatrixXd> run_ekf_vec = ekf_estimate(xEst, PEst, z, ud);
                 xEst = run_ekf_vec[0]; 
                 PEst = run_ekf_vec[1];        
 
-                poseEst->position.x = xEst(0, 0);
-                poseEst->position.y = xEst(1, 0);
-                poseEst->orientation.z = xEst(2, 0);   
+                markerposeEst->header.frame_id = "map";
+                markerposeEst->header.stamp = timestamp;
+                markerposeEst->ns = "poseEst";
+                markerposeEst->id = 2;                
+                markerposeEst->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeEst->action = visualization_msgs::msg::Marker::ADD;
+                markerposeEst->lifetime = rclcpp::Duration(0, 0);
+                markerposeEst->scale.x = 1;
+                markerposeEst->scale.y = 1;
+                markerposeEst->scale.z = 1;
+                markerposeEst->color.a = 1;
+                markerposeEst->color.r = 0;
+                markerposeEst->color.g = 0;
+                markerposeEst->color.b = 1;
+                markerposeEst->pose.position.x = xEst(0, 0);
+                markerposeEst->pose.position.y = xEst(1, 0);
+                markerposeEst->pose.orientation.z = xEst(2, 0);   
 
-                pose_msg_arr->poses.push_back(*poseTrue);
-                pose_msg_arr->poses.push_back(*poseEst);
-                pose_msg_arr->poses.push_back(*poseDr);
-                
+                // pose_msg_arr->poses.push_back(*poseTrue);
+                // pose_msg_arr->poses.push_back(*poseEst);
+                // pose_msg_arr->poses.push_back(*poseDr);
+
+                pose_msg_arr->markers.push_back(*markerposeTrue);
+                pose_msg_arr->markers.push_back(*markerposeEst);
+                pose_msg_arr->markers.push_back(*markerposeDr);
+                       
                 publisher_->publish(std::move(pose_msg_arr));
                 rate.sleep();
             }
