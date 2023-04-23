@@ -21,9 +21,11 @@ Implement popular robotics algorithms in C++ and ROS2
 
 ## Localization 
 - [**EKF_localization**](./src/ekf_localization/)
-    * Red Marker: Robot pose estiamted by Dead Reckoning
-    * Blue Marker: Robot pose estimated by EKF
-    * Green Marker: Ground-truth Robot pose
+    * Red Marker: Robot pose estiamted by EKF
+    Dead Reckoning
+    * Blue Marker: Ground-truth pose of the Robot pose 
+    * Green Marker: Robot pose collected from Observations
+    * Black Marker: Robot pose estimated by Dead Reckoning
 
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/EKF_localization.gif" width="960" />

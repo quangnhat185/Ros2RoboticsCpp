@@ -42,14 +42,14 @@ class EKFPublisher : public rclcpp::Node
 
         MatrixXd Q_init(){
             double pi = std::atan(1) * 4;
-            double x_var = 0.1, y_var = 0.1; // x/y-axis variance
-            double yaw_var = pi / 180; // theta variance
-            double vel_var = 1.0; // velocity variance
+            double x_var = 0.1, y_var = 0.1; // x/y-axis standard deviation
+            double yaw_var = pi / 180; // theta standard deviation
+            double vel_var = 1.0; // velocity standard deviation
 
             MatrixXd Q = MatrixXd(4,4);
             Q.diagonal() << x_var, y_var, yaw_var, vel_var;
 
-            Q = Q * Q; // variance to covariance
+            Q = Q * Q; // establish to covariance
 
             return Q;
         }
@@ -60,20 +60,20 @@ class EKFPublisher : public rclcpp::Node
             R << 1.0, 0.0, 
                 0.0, 1.0 ;
 
-            R = R * R; // variacne to covariance;
+            R = R * R; // establish covariance;
             return R;
         }
 
         Matrix2d INPUT_NOISE_INIT(){
             Matrix2d N = Matrix2d::Zero();
-            N.diagonal() << 1.0, (30.0 / 180.0 * pi);
+            N.diagonal() << -2, (1.0 / 180.0 * pi);
             N = N * N;
             return N;
         }
 
         Matrix2d GPS_NOISE_INIT(){
             Matrix2d G = Matrix2d::Zero();
-            G.diagonal() << 0.8, 0.8;
+            G.diagonal() << 1.0, 1.0;
 
             G = G * G;
             return G;
@@ -143,7 +143,6 @@ class EKFPublisher : public rclcpp::Node
 
             // add noise to input
             MatrixXd ud = u + INPUT_NOISE * MatrixXd::Random(2, 1);
-
             xd = motion_model(xd, ud);
 
             return std::vector<MatrixXd>{xTrue, z, xd, ud};;
@@ -200,6 +199,7 @@ class EKFPublisher : public rclcpp::Node
                 auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
                 auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
                 auto markerposeDr = std::make_unique<visualization_msgs::msg::Marker>();
+                auto markerposeObs = std::make_unique<visualization_msgs::msg::Marker>();
 
                 time += DT;
 
@@ -223,8 +223,8 @@ class EKFPublisher : public rclcpp::Node
                 markerposeTrue->scale.z = scale;
                 markerposeTrue->color.a = 0.5;
                 markerposeTrue->color.r = 0;
-                markerposeTrue->color.g = 1;
-                markerposeTrue->color.b = 0;
+                markerposeTrue->color.g = 0;
+                markerposeTrue->color.b = 1;
                 markerposeTrue->pose.position.x = xTrue(0, 0);
                 markerposeTrue->pose.position.y = xTrue(1, 0);
                 markerposeTrue->pose.orientation.z = xTrue(2, 0);
@@ -242,7 +242,7 @@ class EKFPublisher : public rclcpp::Node
                 markerposeDr->scale.y = scale;
                 markerposeDr->scale.z = scale;
                 markerposeDr->color.a = 1;
-                markerposeDr->color.r = 1;
+                markerposeDr->color.r = 0;
                 markerposeDr->color.g = 0;
                 markerposeDr->color.b = 0;
                 markerposeDr->pose.position.x = xDR(0, 0);
@@ -264,17 +264,36 @@ class EKFPublisher : public rclcpp::Node
                 markerposeEst->scale.y = scale;
                 markerposeEst->scale.z = scale;
                 markerposeEst->color.a = 1;
-                markerposeEst->color.r = 0;
+                markerposeEst->color.r = 1;
                 markerposeEst->color.g = 0;
-                markerposeEst->color.b = 1;
+                markerposeEst->color.b = 0;
                 markerposeEst->pose.position.x = xEst(0, 0);
                 markerposeEst->pose.position.y = xEst(1, 0);
                 markerposeEst->pose.orientation.z = xEst(2, 0);   
+
+                markerposeObs->header.frame_id = "map";
+                markerposeObs->header.stamp = timestamp;
+                markerposeObs->ns = "poseObs";
+                markerposeObs->id = counter;                
+                markerposeObs->type = visualization_msgs::msg::Marker::SPHERE;
+                markerposeObs->action = visualization_msgs::msg::Marker::ADD;
+                markerposeObs->lifetime = rclcpp::Duration::from_seconds(0);
+                markerposeObs->scale.x = scale;
+                markerposeObs->scale.y = scale;
+                markerposeObs->scale.z = scale;
+                markerposeObs->color.a = 1;
+                markerposeObs->color.r = 0;
+                markerposeObs->color.g = 1;
+                markerposeObs->color.b = 0;
+                markerposeObs->pose.position.x = z(0, 0);
+                markerposeObs->pose.position.y = z(1, 0);
+                markerposeObs->pose.orientation.z = 0.0;                  
 
 
                 pose_msg_arr->markers.push_back(*markerposeTrue);
                 pose_msg_arr->markers.push_back(*markerposeEst);
                 pose_msg_arr->markers.push_back(*markerposeDr);
+                pose_msg_arr->markers.push_back(*markerposeObs);
                 publisher_->publish(*pose_msg_arr);
                 counter++;
                 rate.sleep();
