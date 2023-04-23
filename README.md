@@ -7,7 +7,7 @@ Implement popular robotics algorithms in C++ and ROS2
 ### [EKF_localization](./src/ekf_localization/)
 
 <p align="center">
-<img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/EKF_localization.gif" width="1920" />
+<img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/EKF_localization.gif" width="960" />
 </p>
 
 
