@@ -3,3 +3,6 @@ log/
 *.png
 install/
 build/
+src/pub_cpp/
+src/py_plotting/
+temp_dev/
