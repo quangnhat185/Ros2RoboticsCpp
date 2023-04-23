@@ -1,4 +1,3 @@
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -16,13 +15,14 @@ using namespace Eigen;
 class EKFPublisher : public rclcpp::Node
 {
     private:
-        // rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr publisher_;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr publisher_;
         Matrix2d GPS_NOISE = GPS_NOISE_INIT();
         Matrix2d INPUT_NOISE = INPUT_NOISE_INIT();
-            // Covariance matrix of observation noise
+
+        // Covariance matrix of observation noise
         Matrix2d R = R_init();
-            // Covariance matrix of process noise
+
+        // Covariance matrix of process noise
         MatrixXd Q = Q_init();
 
 
@@ -35,8 +35,6 @@ class EKFPublisher : public rclcpp::Node
 
         EKFPublisher(float dt, MatrixXd input) : Node("ekf_publisher")
         {
-        // double Q[4][4];
-            // publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>("robot_localizing_pose", 10);
             publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("robot_localizing_pose", 10);
             DT = dt;
             this->u = input;
@@ -189,6 +187,7 @@ class EKFPublisher : public rclcpp::Node
 
             rclcpp::Rate rate(50);
 
+            // publish marker msg for visualization with Rviz
             auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
             int counter = 0;
@@ -196,10 +195,7 @@ class EKFPublisher : public rclcpp::Node
 
             while (rclcpp::ok())
             {
-
-                // auto poseTrue = std::make_unique<geometry_msgs::msg::Pose>();
-                // auto poseEst = std::make_unique<geometry_msgs::msg::Pose>();
-                // auto poseDr = std::make_unique<geometry_msgs::msg::Pose>();
+        
 
                 auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
                 auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
@@ -213,7 +209,6 @@ class EKFPublisher : public rclcpp::Node
                 z = obs_vec[1];
                 xDR = obs_vec[2];
                 ud = obs_vec[3];
-
                 
                 auto timestamp = this->get_clock()->now();
                 markerposeTrue->header.frame_id = "map";
@@ -283,11 +278,8 @@ class EKFPublisher : public rclcpp::Node
                 publisher_->publish(*pose_msg_arr);
                 counter++;
                 rate.sleep();
-
             }
-
         }
-
 };
 
 int main(int argc, char** argv){
