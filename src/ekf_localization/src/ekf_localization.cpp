@@ -75,7 +75,7 @@ class EKFPublisher : public rclcpp::Node
 
         Matrix2d GPS_NOISE_INIT(){
             Matrix2d G = Matrix2d::Zero();
-            G.diagonal() << 0.5, 0.5;
+            G.diagonal() << 0.8, 0.8;
 
             G = G * G;
             return G;
@@ -187,13 +187,15 @@ class EKFPublisher : public rclcpp::Node
             MatrixXd z;
             MatrixXd ud;
 
-            rclcpp::Rate rate(1);
+            rclcpp::Rate rate(50);
+
+            auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
+
+            int counter = 0;
+            float scale = 0.5;
+
             while (rclcpp::ok())
             {
-                // auto pose_msg_arr = std::make_unique<geometry_msgs::msg::PoseArray>();
-                auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
-                // pose_msg_arr->header.stamp = this->get_clock()->now();
-
 
                 // auto poseTrue = std::make_unique<geometry_msgs::msg::Pose>();
                 // auto poseEst = std::make_unique<geometry_msgs::msg::Pose>();
@@ -211,40 +213,42 @@ class EKFPublisher : public rclcpp::Node
                 z = obs_vec[1];
                 xDR = obs_vec[2];
                 ud = obs_vec[3];
+
                 
                 auto timestamp = this->get_clock()->now();
                 markerposeTrue->header.frame_id = "map";
                 markerposeTrue->header.stamp = timestamp;
                 markerposeTrue->ns = "poseTrue";
-                markerposeTrue->id = 0;
-                markerposeTrue->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeTrue->id = counter;
+                markerposeTrue->type = visualization_msgs::msg::Marker::SPHERE;
                 markerposeTrue->action = visualization_msgs::msg::Marker::ADD;
-                markerposeTrue->lifetime = rclcpp::Duration(0, 0);
-                markerposeTrue->scale.x = 1;
-                markerposeTrue->scale.y = 1;
-                markerposeTrue->scale.z = 1;
-                markerposeTrue->color.a = 1;
-                markerposeTrue->color.r = 1;
-                markerposeTrue->color.g = 0;
+                markerposeTrue->lifetime = rclcpp::Duration::from_seconds(0);
+                markerposeTrue->scale.x = scale;
+                markerposeTrue->scale.y = scale;
+                markerposeTrue->scale.z = scale;
+                markerposeTrue->color.a = 0.5;
+                markerposeTrue->color.r = 0;
+                markerposeTrue->color.g = 1;
                 markerposeTrue->color.b = 0;
                 markerposeTrue->pose.position.x = xTrue(0, 0);
                 markerposeTrue->pose.position.y = xTrue(1, 0);
                 markerposeTrue->pose.orientation.z = xTrue(2, 0);
 
 
+
                 markerposeDr->header.frame_id = "map";
                 markerposeDr->header.stamp = timestamp;
                 markerposeDr->ns = "poseDr";
-                markerposeDr->id = 1;                
-                markerposeDr->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeDr->id = counter;                
+                markerposeDr->type = visualization_msgs::msg::Marker::SPHERE;
                 markerposeDr->action = visualization_msgs::msg::Marker::ADD;
-                markerposeDr->lifetime = rclcpp::Duration(0, 0);
-                markerposeDr->scale.x = 1;
-                markerposeDr->scale.y = 1;
-                markerposeDr->scale.z = 1;
+                markerposeDr->lifetime = rclcpp::Duration::from_seconds(0);
+                markerposeDr->scale.x = scale;
+                markerposeDr->scale.y = scale;
+                markerposeDr->scale.z = scale;
                 markerposeDr->color.a = 1;
-                markerposeDr->color.r = 0;
-                markerposeDr->color.g = 1;
+                markerposeDr->color.r = 1;
+                markerposeDr->color.g = 0;
                 markerposeDr->color.b = 0;
                 markerposeDr->pose.position.x = xDR(0, 0);
                 markerposeDr->pose.position.y = xDR(1, 0);
@@ -257,13 +261,13 @@ class EKFPublisher : public rclcpp::Node
                 markerposeEst->header.frame_id = "map";
                 markerposeEst->header.stamp = timestamp;
                 markerposeEst->ns = "poseEst";
-                markerposeEst->id = 2;                
-                markerposeEst->type = visualization_msgs::msg::Marker::POINTS;
+                markerposeEst->id = counter;                
+                markerposeEst->type = visualization_msgs::msg::Marker::SPHERE;
                 markerposeEst->action = visualization_msgs::msg::Marker::ADD;
-                markerposeEst->lifetime = rclcpp::Duration(0, 0);
-                markerposeEst->scale.x = 1;
-                markerposeEst->scale.y = 1;
-                markerposeEst->scale.z = 1;
+                markerposeEst->lifetime = rclcpp::Duration::from_seconds(0);
+                markerposeEst->scale.x = scale;
+                markerposeEst->scale.y = scale;
+                markerposeEst->scale.z = scale;
                 markerposeEst->color.a = 1;
                 markerposeEst->color.r = 0;
                 markerposeEst->color.g = 0;
@@ -272,16 +276,14 @@ class EKFPublisher : public rclcpp::Node
                 markerposeEst->pose.position.y = xEst(1, 0);
                 markerposeEst->pose.orientation.z = xEst(2, 0);   
 
-                // pose_msg_arr->poses.push_back(*poseTrue);
-                // pose_msg_arr->poses.push_back(*poseEst);
-                // pose_msg_arr->poses.push_back(*poseDr);
 
                 pose_msg_arr->markers.push_back(*markerposeTrue);
                 pose_msg_arr->markers.push_back(*markerposeEst);
                 pose_msg_arr->markers.push_back(*markerposeDr);
-                       
-                publisher_->publish(std::move(pose_msg_arr));
+                publisher_->publish(*pose_msg_arr);
+                counter++;
                 rate.sleep();
+
             }
 
         }
@@ -305,4 +307,4 @@ int main(int argc, char** argv){
 
     rclcpp::shutdown();
     return 0;
-}
+}   
