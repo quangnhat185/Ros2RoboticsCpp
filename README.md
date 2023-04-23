@@ -4,7 +4,7 @@ C+ codes for robotics algorithm with ROS2
 
 ## Localization
 
-### [EKF](./src/ekf_localization/)
+### [EKF_localization](./src/ekf_localization/)
 
 <p align="center">
 <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/EKF_localization.gif" width="1920" />
