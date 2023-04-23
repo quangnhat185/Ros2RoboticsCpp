@@ -1,6 +1,6 @@
 # Ros2RoboticsCpp
 
-C+ codes for robotics algorithm with ROS2
+Implement popular robotics algorithms in C++ and ROS2
 
 ## Localization
 
