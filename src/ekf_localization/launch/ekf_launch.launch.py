@@ -6,9 +6,6 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     rviz_config_dir = os.path.join(get_package_share_directory('ekf_localization'),'rviz', 'ekf_rviz.rviz')
 
-    print(rviz_config_dir)
-    # rviz_config_dir = "/home/quang/ros2_robotics_cpp/src/ekf_localization/rviz/ekf_rviz.rviz"
-
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
