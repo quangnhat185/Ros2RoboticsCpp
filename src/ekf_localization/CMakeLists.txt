@@ -30,4 +30,12 @@ install(TARGETS
 ekf_run 
 DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY rviz
+  DESTINATION share
+)
+
 ament_package()
