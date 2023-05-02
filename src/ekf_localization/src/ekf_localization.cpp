@@ -172,8 +172,6 @@ public:
 
     void run()
     {   
-        double time = 0;
-
         // Initilize state vectors [x y theta v]
         MatrixXd xEst = MatrixXd::Zero(4, 1);
         MatrixXd xTrue = MatrixXd::Zero(4, 1);
@@ -198,8 +196,6 @@ public:
             auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
             auto markerposeDr = std::make_unique<visualization_msgs::msg::Marker>();
             auto markerposeObs = std::make_unique<visualization_msgs::msg::Marker>();
-
-            time += DT;
 
             // obtain overvation
             std::vector<MatrixXd> obs_vec = observation(xTrue, xDR, u);
@@ -226,8 +222,6 @@ public:
             markerposeTrue->pose.position.x = xTrue(0, 0);
             markerposeTrue->pose.position.y = xTrue(1, 0);
             markerposeTrue->pose.orientation.z = xTrue(2, 0);
-
-
 
             markerposeDr->header.frame_id = "map";
             markerposeDr->header.stamp = timestamp;
