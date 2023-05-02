@@ -5,7 +5,7 @@ Implement popular robotics algorithms in C++ and ROS2
 * To-do-list
     - Localization:
         - [x] EKF localization
-        - [ ] Particle filter localization
+        - [x] Particle filter localization
     - Mapping:
         - [ ] Lidar to grid map
         - [ ] Ray casting grid map
@@ -33,6 +33,21 @@ Implement popular robotics algorithms in C++ and ROS2
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/EKF_localization.gif" width="960" />
     </p>
+
+- [**Particle_filter**](./src/particle_filter/)
+    * Red Markers: Robot pose estimated with Particle Filter
+    * Blue Markers: Ground-truth poses
+    * Green Markers: Particles poses
+    * Black Markers: Robot pose estimated with Dead Reckoning
+    * Brown Markers: Landmarks
+
+    ```bash
+    ros2 launch particle_filter particle_filter.launch.py
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/Particle_filter.gif" width="960" />
+    </p>    
 
 
 ## Reference
