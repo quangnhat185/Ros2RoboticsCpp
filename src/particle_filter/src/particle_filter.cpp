@@ -451,9 +451,9 @@ int main(int argc, char** argv)
     MatrixXd rf_id(4, 2);
     rf_id << 
             10.0, 0.0,
-            10.0, 10.0,
+            15.0, 10.0,
             0.0, 15.0,
-            -5.0, 20.0;
+            -5.0, 25.0;
 
     MatrixXd u(2, 1);
     double trans_vel = 1.0;
