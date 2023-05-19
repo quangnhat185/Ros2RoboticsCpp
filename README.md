@@ -49,6 +49,18 @@ Implement popular robotics algorithms in C++ and ROS2
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/Particle_filter.gif" width="960" />
     </p>    
 
+- [**Lidar2GridMap**](./src/lidar2gridmap/)
+    * Left plot: 2D Laser scanning point cloud
+    * Right plot: Occupancy grid map 
+
+    ```bash
+    ros2 launch lidar2gridmap lidar2gridmap.launch.py 
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/lidar2gridmap.png" width="960" />
+    </p>        
+
 
 ## Reference
 [AtsushiSakai/PythonRobotics](https://github.com/AtsushiSakai/PythonRobotics)

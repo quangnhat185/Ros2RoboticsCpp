@@ -8,6 +8,9 @@ Panels:
         - /Status1
         - /Axes1
         - /LaserScan1
+        - /LaserScan1/Status1
+        - /Map1
+        - /Map1/Status1
       Splitter Ratio: 0.5029411911964417
     Tree Height: 719
   - Class: rviz_common/Selection
@@ -59,8 +62,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0
+        Min Value: 0
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -79,7 +82,7 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.029999999329447746
-      Style: Flat Squares
+      Style: Spheres
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -89,6 +92,27 @@ Visualization Manager:
         Value: /laser_scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /grid_map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /grid_map_updates
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -145,11 +169,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 320
+      Scale: 260.48529052734375
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz_default_plugins)
       X: 0
-      Y: 0
+      Y: 0.5
     Saved:
       - Angle: 0
         Class: rviz_default_plugins/TopDownOrtho

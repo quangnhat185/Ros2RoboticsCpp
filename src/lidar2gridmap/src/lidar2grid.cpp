@@ -245,13 +245,13 @@ public:
         laser_msg->header.frame_id = "map";
         laser_msg->header.stamp = timestamp;
 
-        float angle_min = *std::min_element(lidar_data.theta.begin(), lidar_data.theta.end());
-        float angle_max = *std::max_element(lidar_data.theta.begin(), lidar_data.theta.end());
+        // float angle_min = *std::min_element(lidar_data.theta.begin(), lidar_data.theta.end());
+        // float angle_max = *std::max_element(lidar_data.theta.begin(), lidar_data.theta.end());
         float range_min = *std::min_element(lidar_data.dis.begin(), lidar_data.dis.end());
         float range_max = *std::max_element(lidar_data.dis.begin(), lidar_data.dis.end());
 
-        laser_msg->angle_min = angle_min;
-        laser_msg->angle_max = angle_max;
+        laser_msg->angle_min = pi / 10;
+        laser_msg->angle_max = pi;
         laser_msg->angle_increment = lidar_data.theta[1] - lidar_data.theta[0];
         laser_msg->range_min = range_min;
         laser_msg->range_max = range_max;
@@ -275,10 +275,10 @@ public:
         gmap_msg->info.height = gmap.xw;
         gmap_msg->info.width = gmap.yw;
         gmap_msg->info.resolution = RESOLUTION;
-        gmap_msg->info.origin.position.x = -(gmap.center_x * RESOLUTION) + 0.3;
-        gmap_msg->info.origin.position.y = -(gmap.center_y * RESOLUTION) + 0.25;
-        gmap_msg->info.origin.orientation.z = -0.1088669;
-        gmap_msg->info.origin.orientation.w = 0.9940563;
+        gmap_msg->info.origin.position.x = -(gmap.center_x * RESOLUTION) + 0.45;
+        gmap_msg->info.origin.position.y = -(gmap.center_y * RESOLUTION);
+        // gmap_msg->info.origin.orientation.z = -0.1088669;
+        // gmap_msg->info.origin.orientation.w = 0.9940563;
     
         std::vector<int> gmap_data;
         for (int i = 0; i < gmap.prob_map.rows(); i++)
