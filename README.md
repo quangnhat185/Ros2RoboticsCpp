@@ -7,7 +7,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [x] EKF localization
         - [x] Particle filter localization
     - Mapping:
-        - [ ] Lidar to grid map
+        - [x] Lidar to grid map
         - [ ] Ray casting grid map
     - SLAM:
         - [ ] EKF SLAM
