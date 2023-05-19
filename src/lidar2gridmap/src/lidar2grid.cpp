@@ -9,10 +9,7 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include <jsoncpp/json/json.h>
 #include <fstream>
-#include <filesystem>
 #include <vector>
-// #include "visualization_msgs/msg/marker_array.hpp"
-// #include "visualization_msgs/msg/marker.hpp"
 
 struct LidarData
 {
@@ -37,7 +34,6 @@ struct GridMap
     int min_x, min_y, max_x, max_y, xw, yw, center_x, center_y;
     float resolution;
 
-
     Eigen::MatrixXd prob_map;
 
     GridMap(int min_x, int min_y, int max_x, int max_y, float resolution)
@@ -53,7 +49,6 @@ struct GridMap
         center_y = int(std::round(yw / 2));
 
         std::cout << "Grid map size is: " << xw << " x " << yw << std::endl; 
-        // std::cout << prob_map << std::endl;
     }
 };
 
@@ -83,6 +78,7 @@ public:
         grid_publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("grid_map", 10);
     }
 
+    // read data from json path
     LidarData read_file(std::string json_path)
     {
 
@@ -210,8 +206,6 @@ public:
             int ix = (int)std::round((x - gridmap.min_x) / resolution);
             int iy = (int)std::round((y - gridmap.min_y) / resolution);
 
-            // std::cout << ix << " : " << iy << std::endl;
-
             Point center(gridmap.center_x, gridmap.center_y);
             Point occupided_cell(ix, iy);
 
@@ -230,8 +224,6 @@ public:
             gridmap.prob_map(ix + 1, iy + 1) = 1.0;
         }    
 
-        // gridmap.prob_map.transposeInPlace();
-
         return gridmap;
     }
 
@@ -240,13 +232,12 @@ public:
 
         rclcpp::Rate rate(20);
 
+        // copnfig laser scan message
         auto laser_msg = std::make_unique<sensor_msgs::msg::LaserScan>();
         auto timestamp = this->get_clock()->now();
         laser_msg->header.frame_id = "map";
         laser_msg->header.stamp = timestamp;
 
-        // float angle_min = *std::min_element(lidar_data.theta.begin(), lidar_data.theta.end());
-        // float angle_max = *std::max_element(lidar_data.theta.begin(), lidar_data.theta.end());
         float range_min = *std::min_element(lidar_data.dis.begin(), lidar_data.dis.end());
         float range_max = *std::max_element(lidar_data.dis.begin(), lidar_data.dis.end());
 
@@ -256,6 +247,7 @@ public:
         laser_msg->range_min = range_min;
         laser_msg->range_max = range_max;
 
+        // append laser data to laser_msg
         std::vector<float> ox, oy;
         for (size_t i = 0; i < lidar_data.theta.size(); i++)
         {
@@ -268,7 +260,7 @@ public:
             laser_msg->intensities.push_back(1);
         }   
 
-        
+        // config grid mapp message
         GridMap gmap = generate_ray_casting_grid_map(ox, oy, RESOLUTION);
         auto gmap_msg = std::make_unique<nav_msgs::msg::OccupancyGrid>();
         gmap_msg->header.frame_id = "map";
@@ -277,10 +269,8 @@ public:
         gmap_msg->info.resolution = RESOLUTION;
         gmap_msg->info.origin.position.x = -(gmap.center_x * RESOLUTION) + 0.45;
         gmap_msg->info.origin.position.y = -(gmap.center_y * RESOLUTION);
-        // gmap_msg->info.origin.orientation.z = -0.1088669;
-        // gmap_msg->info.origin.orientation.w = 0.9940563;
     
-        std::vector<int> gmap_data;
+        // Append cell data to gmap_msg
         for (int i = 0; i < gmap.prob_map.rows(); i++)
         {
             for (int j = 0; j < gmap.prob_map.cols(); j++)
@@ -295,13 +285,9 @@ public:
             }
         }   
         
-        // size_t counter = 0;
-        // while (rclcpp::ok() && counter < lidar_data.theta.size())
+        // pubish laser_msg and gmap_msg
         while (rclcpp::ok())
         {
-            // laser_msg->ranges.push_back(lidar_data.dis[counter]);
-            // laser_msg->intensities.push_back(1.0);
-            // counter++;
             laser_publisher_->publish(*laser_msg);
             grid_publisher_->publish(*gmap_msg);
             rate.sleep();
@@ -313,9 +299,6 @@ public:
 int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
-    // std::filesystem::path currentPath = std::filesystem::current_path();
-    // std::cout <<  currentPath << std::endl;
-
     std::string file_path = ("./src/lidar2gridmap/data/lidar_me.json");
     float extend_area = 1.0;
     float resolution = 0.02;
