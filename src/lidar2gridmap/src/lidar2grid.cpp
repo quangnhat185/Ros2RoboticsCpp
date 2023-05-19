@@ -61,6 +61,7 @@ class Lidar2Grid : public rclcpp::Node
 {
 private:
     float EXTEND_AREA = 1.0;
+    float RESOLUTION = 0.02;
     double pi = atan(1) * 4;
     LidarData lidar_data;
 
@@ -73,18 +74,17 @@ private:
 
 public:
 
-    Lidar2Grid(std::string &file_path) : Node("lidar2grid_pub")
+    Lidar2Grid(std::string &file_path, float extend_area, float resolution) : Node("lidar2grid_pub")
     {
         lidar_data = read_file(file_path);
-
+        EXTEND_AREA = extend_area;
+        RESOLUTION = resolution;
         laser_publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("laser_scan", 10);
         grid_publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("grid_map", 10);
     }
 
     LidarData read_file(std::string json_path)
     {
-
-        LidarData lidar_data;
 
         std::ifstream jsonFile(json_path);
 
@@ -196,7 +196,7 @@ public:
     }
 
     // compute grid map with bresenham ray casting
-    GridMap generate_ray_casting_grid_map(std::vector<float> &ox, std::vector<float> &oy, float &resolution)
+    GridMap generate_ray_casting_grid_map(std::vector<float> &ox, std::vector<float> &oy, float resolution)
     {
         GridMap gridmap = cal_grid_map_config(ox, oy, resolution);
 
@@ -230,48 +230,80 @@ public:
             gridmap.prob_map(ix + 1, iy + 1) = 1.0;
         }    
 
+        // gridmap.prob_map.transposeInPlace();
+
         return gridmap;
     }
 
     void run()
     {   
 
-        rclcpp::Rate rate(10);
+        rclcpp::Rate rate(20);
 
         auto laser_msg = std::make_unique<sensor_msgs::msg::LaserScan>();
         auto timestamp = this->get_clock()->now();
         laser_msg->header.frame_id = "map";
         laser_msg->header.stamp = timestamp;
 
-        laser_msg->angle_min = 0.008450416037156572;
-        laser_msg->angle_max = 2 * pi;
-        laser_msg->angle_increment = 0.038451785082999734;
-        laser_msg->range_min = 0.2;
-        laser_msg->range_max = 1.13;
+        float angle_min = *std::min_element(lidar_data.theta.begin(), lidar_data.theta.end());
+        float angle_max = *std::max_element(lidar_data.theta.begin(), lidar_data.theta.end());
+        float range_min = *std::min_element(lidar_data.dis.begin(), lidar_data.dis.end());
+        float range_max = *std::max_element(lidar_data.dis.begin(), lidar_data.dis.end());
 
-        
+        laser_msg->angle_min = angle_min;
+        laser_msg->angle_max = angle_max;
+        laser_msg->angle_increment = lidar_data.theta[1] - lidar_data.theta[0];
+        laser_msg->range_min = range_min;
+        laser_msg->range_max = range_max;
+
         std::vector<float> ox, oy;
-
         for (size_t i = 0; i < lidar_data.theta.size(); i++)
         {
             float theta = lidar_data.theta[i];
             float dist = lidar_data.dis[i];
-            // laser_msg->ranges.push_back(dist);
-            // laser_msg->intensities.push_back(1.0);
-
-
             ox.push_back(std::sin(theta) * dist);
             oy.push_back(std::cos(theta) * dist);
-        }
 
+            laser_msg->ranges.push_back(dist);
+            laser_msg->intensities.push_back(1);
+        }   
 
-        size_t counter = 0;
-        while (rclcpp::ok() && counter < lidar_data.theta.size())
+        
+        GridMap gmap = generate_ray_casting_grid_map(ox, oy, RESOLUTION);
+        auto gmap_msg = std::make_unique<nav_msgs::msg::OccupancyGrid>();
+        gmap_msg->header.frame_id = "map";
+        gmap_msg->info.height = gmap.xw;
+        gmap_msg->info.width = gmap.yw;
+        gmap_msg->info.resolution = RESOLUTION;
+        gmap_msg->info.origin.position.x = -(gmap.center_x * RESOLUTION) + 0.3;
+        gmap_msg->info.origin.position.y = -(gmap.center_y * RESOLUTION) + 0.25;
+        gmap_msg->info.origin.orientation.z = -0.1088669;
+        gmap_msg->info.origin.orientation.w = 0.9940563;
+    
+        std::vector<int> gmap_data;
+        for (int i = 0; i < gmap.prob_map.rows(); i++)
         {
-            laser_msg->ranges.push_back(lidar_data.dis[counter]);
-            laser_msg->intensities.push_back(1.0);
+            for (int j = 0; j < gmap.prob_map.cols(); j++)
+            {   
+                double prob = gmap.prob_map(i, j);
+                if (prob == 1.0)
+                    gmap_msg->data.push_back(100);
+                else if (prob == 0.0)
+                    gmap_msg->data.push_back(0);
+                else
+                   gmap_msg->data.push_back(-1);            
+            }
+        }   
+        
+        // size_t counter = 0;
+        // while (rclcpp::ok() && counter < lidar_data.theta.size())
+        while (rclcpp::ok())
+        {
+            // laser_msg->ranges.push_back(lidar_data.dis[counter]);
+            // laser_msg->intensities.push_back(1.0);
+            // counter++;
             laser_publisher_->publish(*laser_msg);
-            counter++;
+            grid_publisher_->publish(*gmap_msg);
             rate.sleep();
         }
     }
@@ -285,7 +317,9 @@ int main(int argc, char** argv)
     // std::cout <<  currentPath << std::endl;
 
     std::string file_path = ("./src/lidar2gridmap/data/lidar_me.json");
-    auto node = std::make_shared<Lidar2Grid>(file_path);
+    float extend_area = 1.0;
+    float resolution = 0.02;
+    auto node = std::make_shared<Lidar2Grid>(file_path, extend_area, resolution);
     node->run();
 
     rclcpp::shutdown();
