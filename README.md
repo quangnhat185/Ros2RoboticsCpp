@@ -8,7 +8,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [x] Particle filter localization
     - Mapping:
         - [x] Lidar to grid map
-        - [ ] Ray casting grid map
+        - [ ] Kmeans_clustering
     - SLAM:
         - [ ] EKF SLAM
         - [ ] FastSLAM 

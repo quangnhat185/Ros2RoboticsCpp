@@ -144,8 +144,9 @@ private:
 
     std::unordered_map<int, std::array<float, 3>> color_map;    
 
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obj_pose_publisher_;
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr cluster_pose_publisher_;
+    // rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obj_pose_publisher_;
+    // rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr cluster_pose_publisher_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr kmeans_publisher_;
 
 public: 
 
@@ -156,9 +157,11 @@ public:
         std::mt19937 gen(rd());
         std::uniform_real_distribution<float> dist_color(0, 1);     
 
-        obj_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>
-        ("obj_pose", 10);
-        cluster_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
+        // obj_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>
+        // ("obj_pose", 10);
+        // cluster_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
+
+        kmeans_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 10);
 
         this->n_cluster = n_cluster;
         this->rand_d = rand_d;
@@ -234,17 +237,96 @@ public:
     return clusters;
     }    
 
-    std::unique_ptr<visualization_msgs::msg::MarkerArray>setup_obj_pose_msg(
-        Objs & objs,
-        float scale
-    )
-    {
+    // std::unique_ptr<visualization_msgs::msg::MarkerArray>setup_obj_pose_msg(
+    //     Objs & objs,
+    //     float scale
+    // )
+    // {
 
-        auto pose_objs = std::make_unique<visualization_msgs::msg::MarkerArray>();
+    //     auto pose_objs = std::make_unique<visualization_msgs::msg::MarkerArray>();
+
+    //     for (int i=0; i<(int)objs.cx.size(); i++)
+    //     {
+    //         auto obj_pose_msg = std::make_unique<visualization_msgs::msg::Marker>();
+    //         auto timestamp = this->get_clock()->now();
+    //         obj_pose_msg->header.frame_id = "map";
+    //         obj_pose_msg->header.stamp = timestamp;
+    //         obj_pose_msg->ns = "poseObj";
+    //         obj_pose_msg->id = i;
+    //         obj_pose_msg->type = visualization_msgs::msg::Marker::SPHERE;
+    //         obj_pose_msg->action = visualization_msgs::msg::Marker::ADD;
+    //         obj_pose_msg->scale.x = scale;
+    //         obj_pose_msg->scale.y = scale;
+    //         obj_pose_msg->scale.z = scale;
+    //         obj_pose_msg->color.a = 1;
+    //         obj_pose_msg->color.r = 1;
+    //         obj_pose_msg->color.g = 0;
+    //         obj_pose_msg->color.b = 0;
+    //         obj_pose_msg->pose.position.x = objs.cx[i];
+    //         obj_pose_msg->pose.position.y = objs.cy[i];
+    //         obj_pose_msg->pose.orientation.z = 0.0;    
+
+    //         pose_objs->markers.push_back(*obj_pose_msg);                
+    //     }
+
+    //     return pose_objs;
+    // }
+
+
+    // std::shared_ptr<visualization_msgs::msg::MarkerArray> setup_cluster_msg(
+    //     Clusters &clusters,
+    //     float scale
+    // )
+    // {   
+    //     auto pose_cluster_arr = std::make_shared<visualization_msgs::msg::MarkerArray>();
+    //     auto point_pose = std::make_unique<visualization_msgs::msg::Marker>();
+
+    //     for (int i = 0; i < n_cluster; i++)
+    //     {
+    //         Points c_points = clusters._get_labeled_x_y(i);
+    //         std::cout << "c_points.x.size() " << c_points.x.size() << std::endl;
+
+    //         for (int j = 0; j < (int)c_points.x.size(); j++)
+    //         {
+    //             auto timestamp = this->get_clock()->now();
+    //             point_pose->header.frame_id = "map";
+    //             point_pose->header.stamp = timestamp;
+    //             point_pose->ns = "posePoints" + std::to_string(i);
+    //             point_pose->id = j;
+    //             point_pose->type = visualization_msgs::msg::Marker::SPHERE;
+    //             point_pose->action = visualization_msgs::msg::Marker::ADD;
+    //             point_pose->scale.x = scale;
+    //             point_pose->scale.y = scale;
+    //             point_pose->scale.z = scale;
+    //             point_pose->color.a = 1;
+
+    //             point_pose->color.r = color_map[i][0];
+    //             point_pose->color.g = color_map[i][1];
+    //             point_pose->color.b = color_map[i][2];
+
+    //             point_pose->pose.position.x = c_points.x[j];
+    //             point_pose->pose.position.y = c_points.y[j];
+    //             point_pose->pose.orientation.z = 0.0; 
+
+    //             pose_cluster_arr->markers.push_back(std::move(*point_pose));  
+    //         }
+    //     }
+    //     return pose_cluster_arr;
+    // }
+
+    std::shared_ptr<visualization_msgs::msg::MarkerArray> setup_kmeans_msg(
+        Objs &objs,
+        Clusters &clusters,
+        float scale_objs,
+        float scale_cluster
+    )
+    {   
+        auto pose_cluster_arr = std::make_shared<visualization_msgs::msg::MarkerArray>();
+        auto obj_pose_msg = std::make_unique<visualization_msgs::msg::Marker>();
+        auto point_pose = std::make_unique<visualization_msgs::msg::Marker>();
 
         for (int i=0; i<(int)objs.cx.size(); i++)
         {
-            auto obj_pose_msg = std::make_unique<visualization_msgs::msg::Marker>();
             auto timestamp = this->get_clock()->now();
             obj_pose_msg->header.frame_id = "map";
             obj_pose_msg->header.stamp = timestamp;
@@ -252,9 +334,9 @@ public:
             obj_pose_msg->id = i;
             obj_pose_msg->type = visualization_msgs::msg::Marker::SPHERE;
             obj_pose_msg->action = visualization_msgs::msg::Marker::ADD;
-            obj_pose_msg->scale.x = scale;
-            obj_pose_msg->scale.y = scale;
-            obj_pose_msg->scale.z = scale;
+            obj_pose_msg->scale.x = scale_objs;
+            obj_pose_msg->scale.y = scale_objs;
+            obj_pose_msg->scale.z = scale_objs;
             obj_pose_msg->color.a = 1;
             obj_pose_msg->color.r = 1;
             obj_pose_msg->color.g = 0;
@@ -263,20 +345,8 @@ public:
             obj_pose_msg->pose.position.y = objs.cy[i];
             obj_pose_msg->pose.orientation.z = 0.0;    
 
-            pose_objs->markers.push_back(*obj_pose_msg);                
+            pose_cluster_arr->markers.push_back(*obj_pose_msg);                
         }
-
-        return pose_objs;
-    }
-
-
-    std::shared_ptr<visualization_msgs::msg::MarkerArray> setup_cluster_msg(
-        Clusters &clusters,
-        float scale
-    )
-    {   
-        auto pose_cluster_arr = std::make_shared<visualization_msgs::msg::MarkerArray>();
-        auto point_pose = std::make_unique<visualization_msgs::msg::Marker>();
 
         for (int i = 0; i < n_cluster; i++)
         {
@@ -292,9 +362,9 @@ public:
                 point_pose->id = j;
                 point_pose->type = visualization_msgs::msg::Marker::SPHERE;
                 point_pose->action = visualization_msgs::msg::Marker::ADD;
-                point_pose->scale.x = scale;
-                point_pose->scale.y = scale;
-                point_pose->scale.z = scale;
+                point_pose->scale.x = scale_cluster;
+                point_pose->scale.y = scale_cluster;
+                point_pose->scale.z = scale_cluster;
                 point_pose->color.a = 1;
 
                 point_pose->color.r = color_map[i][0];
@@ -328,14 +398,18 @@ public:
             // std::cout << "clusters.getX().size(): " << clusters.getX().size() << std::endl;
 
             float scale_objs = 1.5;
-            auto pose_objs_arr = setup_obj_pose_msg(objs, scale_objs);
+            // auto pose_objs_arr = setup_obj_pose_msg(objs, scale_objs);
+            // obj_pose_publisher_->publish(std::move(*pose_objs_arr));
 
             float scale_point_cluster = 0.5;
-            auto pose_cluster_arr = setup_cluster_msg(clusters, scale_point_cluster);
+            // auto pose_cluster_arr = setup_cluster_msg(clusters, scale_point_cluster);
+            auto kmeans_cluster_arr = setup_kmeans_msg(objs, clusters, scale_objs, scale_point_cluster);
 
-            cluster_pose_publisher_->publish(std::move(*pose_cluster_arr));
+            // cluster_pose_publisher_->publish(std::move(*pose_cluster_arr));
 
-            obj_pose_publisher_->publish(std::move(*pose_objs_arr));
+            kmeans_publisher_->publish(std::move(*kmeans_cluster_arr));
+            kmeans_cluster_arr->markers.clear();
+
 
             rate.sleep();
         }
