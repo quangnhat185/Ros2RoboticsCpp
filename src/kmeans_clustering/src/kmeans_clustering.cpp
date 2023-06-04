@@ -409,7 +409,7 @@ public:
 
             kmeans_publisher_->publish(std::move(*kmeans_cluster_arr));
             kmeans_cluster_arr->markers.clear();
-
+            kmeans_publisher_->publish(std::move(*kmeans_cluster_arr));
 
             rate.sleep();
         }
