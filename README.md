@@ -61,7 +61,7 @@ Implement popular robotics algorithms in C++ and ROS2
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/lidar2gridmap.png" width="960" />
     </p>   
 
-- [**Lidar2GridMap**](./src/kmeans_clustering/)
+- [**Kmeans_clustering**](./src/kmeans_clustering/)
     * Red Sphere: Object pose 
     * Cluster with different colors as different labels 
 
