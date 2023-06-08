@@ -78,16 +78,37 @@ public:
     std::vector<float> getY()
     {
         return y;
-    }    
+    }  
+
+    std::vector<float> getCenterX()
+    {
+        return center_x;
+    }       
+
+    std::vector<float> getCenterY()
+    {
+        return center_y;
+    }       
 
     void calc_centroid()
     {
         for (int label = 0; label < n_label; label++)
         {
             Points ret_xy = _get_labeled_x_y(label);
-            // std::cout << n_label << std::endl;
-            center_x[label] = std::accumulate(ret_xy.x.begin(), ret_xy.x.end(), 0) / float(ret_xy.x.size());
-            center_y[label] = std::accumulate(ret_xy.y.begin(), ret_xy.y.end(), 0) / float(ret_xy.y.size());
+            std::cout << "ret_xy.x.size() " << ret_xy.x.size() << std::endl;
+
+            if (ret_xy.x.size() != 0)
+            {
+
+                center_x[label] = std::accumulate(ret_xy.x.begin(), ret_xy.x.end(), 0) / float(ret_xy.x.
+                size());
+                center_y[label] = std::accumulate(ret_xy.y.begin(), ret_xy.y.end(), 0) / float(ret_xy.y.size());
+            }
+            else
+            {
+                center_x[label] = 0.0;
+                center_y[label] = 0.0;
+            }
         }
     }
 
@@ -134,7 +155,7 @@ public:
 class KmeansClustering : public rclcpp::Node
 {
 private:
-    float DCOST_TH = 0.1;
+    float DCOST_TH = 0.01;
     int MAX_LOOP = 10;  
 
     Objs objs;
@@ -161,7 +182,7 @@ public:
         // ("obj_pose", 10);
         // cluster_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
 
-        kmeans_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 10);
+        kmeans_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
 
         this->n_cluster = n_cluster;
         this->rand_d = rand_d;
@@ -322,8 +343,8 @@ public:
     )
     {   
         auto pose_cluster_arr = std::make_shared<visualization_msgs::msg::MarkerArray>();
-        auto obj_pose_msg = std::make_unique<visualization_msgs::msg::Marker>();
-        auto point_pose = std::make_unique<visualization_msgs::msg::Marker>();
+        auto obj_pose_msg = std::make_shared<visualization_msgs::msg::Marker>();
+        auto point_pose = std::make_shared<visualization_msgs::msg::Marker>();
 
         for (int i=0; i<(int)objs.cx.size(); i++)
         {
@@ -375,7 +396,7 @@ public:
                 point_pose->pose.position.y = c_points.y[j];
                 point_pose->pose.orientation.z = 0.0; 
 
-                pose_cluster_arr->markers.push_back(std::move(*point_pose));  
+                pose_cluster_arr->markers.push_back(*point_pose);  
             }
         }
         return pose_cluster_arr;
@@ -392,6 +413,19 @@ public:
             update_position(objs);
             Points points = cal_raw_data(objs, n_points, rand_d);
             auto clusters = klmeans_clustering(points, n_cluster);   
+
+            for (auto val_ob : objs.cx)
+            {
+                std::cout << val_ob << " ";
+            }
+            std::cout << std::endl;
+
+            for (auto val_cl : clusters.getCenterX())
+            {
+                std::cout << val_cl << " ";
+            }
+            std::cout << std::endl;
+
             // clusters.printClusterCenX();
 
             // std::cout << objs.cx[0] << std::endl;
@@ -407,7 +441,7 @@ public:
 
             // cluster_pose_publisher_->publish(std::move(*pose_cluster_arr));
 
-            kmeans_publisher_->publish(std::move(*kmeans_cluster_arr));
+            kmeans_publisher_->publish(*kmeans_cluster_arr);
             kmeans_cluster_arr->markers.clear();
             kmeans_publisher_->publish(std::move(*kmeans_cluster_arr));
 
@@ -421,7 +455,7 @@ int main(int argc, char** argv)
 
     rclcpp::init(argc, argv);
 
-    float dcost = 0.1;
+    float d_cost = 0.01;
     Objs objs;
     objs.cx = {0.0, 3.0, 5.0};
     objs.cy = {0.0, 1.0, 2.5};
@@ -429,7 +463,7 @@ int main(int argc, char** argv)
     float rand_d = 3.0;
     int n_cluster = 3;    
 
-    auto node = std::make_shared<KmeansClustering>(dcost, objs, n_points, n_cluster, rand_d);
+    auto node = std::make_shared<KmeansClustering>(d_cost, objs, n_points, n_cluster, rand_d);
     node->run();
 
     rclcpp::shutdown();
