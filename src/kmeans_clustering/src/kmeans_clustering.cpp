@@ -10,7 +10,6 @@
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
-
 struct Points
 {
     std::vector<float> x;
@@ -59,7 +58,6 @@ public:
         
         for (int i = 0; i < (int)labels.size(); i++)
         {
-            // std::cout << "labels[i]: " << labels[i] << std::endl;
             if (labels[i] == target_label)
             {
                 ret_xy.x.push_back(x[i]);
@@ -95,7 +93,6 @@ public:
         for (int label = 0; label < n_label; label++)
         {
             Points ret_xy = _get_labeled_x_y(label);
-            std::cout << "ret_xy.x.size() " << ret_xy.x.size() << std::endl;
 
             if (ret_xy.x.size() != 0)
             {
@@ -134,7 +131,6 @@ public:
             auto min_dist = std::min_element(center_dist.begin(), center_dist.end());
             int min_id = std::distance(center_dist.begin(), min_dist);
             labels[i] = min_id;
-            // std::cout << "min_id: " << min_id << std::endl;
             
             cost += *min_dist;
         }
@@ -165,8 +161,6 @@ private:
 
     std::unordered_map<int, std::array<float, 3>> color_map;    
 
-    // rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obj_pose_publisher_;
-    // rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr cluster_pose_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr kmeans_publisher_;
 
 public: 
@@ -177,10 +171,6 @@ public:
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<float> dist_color(0, 1);     
-
-        // obj_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>
-        // ("obj_pose", 10);
-        // cluster_pose_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
 
         kmeans_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("cluster_pose", 1);
 
@@ -242,7 +232,6 @@ public:
 
         for (int iter = 0; iter < MAX_LOOP; iter++)
         {
-            std::cout << " loop: " << iter << std::endl;
             float cost = clusters.update_cluster();
             clusters.calc_centroid();
 
@@ -257,83 +246,6 @@ public:
 
     return clusters;
     }    
-
-    // std::unique_ptr<visualization_msgs::msg::MarkerArray>setup_obj_pose_msg(
-    //     Objs & objs,
-    //     float scale
-    // )
-    // {
-
-    //     auto pose_objs = std::make_unique<visualization_msgs::msg::MarkerArray>();
-
-    //     for (int i=0; i<(int)objs.cx.size(); i++)
-    //     {
-    //         auto obj_pose_msg = std::make_unique<visualization_msgs::msg::Marker>();
-    //         auto timestamp = this->get_clock()->now();
-    //         obj_pose_msg->header.frame_id = "map";
-    //         obj_pose_msg->header.stamp = timestamp;
-    //         obj_pose_msg->ns = "poseObj";
-    //         obj_pose_msg->id = i;
-    //         obj_pose_msg->type = visualization_msgs::msg::Marker::SPHERE;
-    //         obj_pose_msg->action = visualization_msgs::msg::Marker::ADD;
-    //         obj_pose_msg->scale.x = scale;
-    //         obj_pose_msg->scale.y = scale;
-    //         obj_pose_msg->scale.z = scale;
-    //         obj_pose_msg->color.a = 1;
-    //         obj_pose_msg->color.r = 1;
-    //         obj_pose_msg->color.g = 0;
-    //         obj_pose_msg->color.b = 0;
-    //         obj_pose_msg->pose.position.x = objs.cx[i];
-    //         obj_pose_msg->pose.position.y = objs.cy[i];
-    //         obj_pose_msg->pose.orientation.z = 0.0;    
-
-    //         pose_objs->markers.push_back(*obj_pose_msg);                
-    //     }
-
-    //     return pose_objs;
-    // }
-
-
-    // std::shared_ptr<visualization_msgs::msg::MarkerArray> setup_cluster_msg(
-    //     Clusters &clusters,
-    //     float scale
-    // )
-    // {   
-    //     auto pose_cluster_arr = std::make_shared<visualization_msgs::msg::MarkerArray>();
-    //     auto point_pose = std::make_unique<visualization_msgs::msg::Marker>();
-
-    //     for (int i = 0; i < n_cluster; i++)
-    //     {
-    //         Points c_points = clusters._get_labeled_x_y(i);
-    //         std::cout << "c_points.x.size() " << c_points.x.size() << std::endl;
-
-    //         for (int j = 0; j < (int)c_points.x.size(); j++)
-    //         {
-    //             auto timestamp = this->get_clock()->now();
-    //             point_pose->header.frame_id = "map";
-    //             point_pose->header.stamp = timestamp;
-    //             point_pose->ns = "posePoints" + std::to_string(i);
-    //             point_pose->id = j;
-    //             point_pose->type = visualization_msgs::msg::Marker::SPHERE;
-    //             point_pose->action = visualization_msgs::msg::Marker::ADD;
-    //             point_pose->scale.x = scale;
-    //             point_pose->scale.y = scale;
-    //             point_pose->scale.z = scale;
-    //             point_pose->color.a = 1;
-
-    //             point_pose->color.r = color_map[i][0];
-    //             point_pose->color.g = color_map[i][1];
-    //             point_pose->color.b = color_map[i][2];
-
-    //             point_pose->pose.position.x = c_points.x[j];
-    //             point_pose->pose.position.y = c_points.y[j];
-    //             point_pose->pose.orientation.z = 0.0; 
-
-    //             pose_cluster_arr->markers.push_back(std::move(*point_pose));  
-    //         }
-    //     }
-    //     return pose_cluster_arr;
-    // }
 
     std::shared_ptr<visualization_msgs::msg::MarkerArray> setup_kmeans_msg(
         Objs &objs,
@@ -372,32 +284,35 @@ public:
         for (int i = 0; i < n_cluster; i++)
         {
             Points c_points = clusters._get_labeled_x_y(i);
-            std::cout << "c_points.x.size() " << c_points.x.size() << std::endl;
+            auto timestamp = this->get_clock()->now();
+            point_pose->header.frame_id = "map";
+            point_pose->header.stamp = timestamp;
+            point_pose->ns = "posePoints" + std::to_string(i);
+            point_pose->id = i;
+            point_pose->type = visualization_msgs::msg::Marker::POINTS;
+            point_pose->action = visualization_msgs::msg::Marker::ADD;
+            point_pose->scale.x = scale_cluster;
+            point_pose->scale.y = scale_cluster;
+            point_pose->scale.z = scale_cluster;
+            point_pose->color.a = 1;
 
             for (int j = 0; j < (int)c_points.x.size(); j++)
             {
-                auto timestamp = this->get_clock()->now();
-                point_pose->header.frame_id = "map";
-                point_pose->header.stamp = timestamp;
-                point_pose->ns = "posePoints" + std::to_string(i);
-                point_pose->id = j;
-                point_pose->type = visualization_msgs::msg::Marker::SPHERE;
-                point_pose->action = visualization_msgs::msg::Marker::ADD;
-                point_pose->scale.x = scale_cluster;
-                point_pose->scale.y = scale_cluster;
-                point_pose->scale.z = scale_cluster;
-                point_pose->color.a = 1;
+                geometry_msgs::msg::Point point;
+                point.x = c_points.x[j];
+                point.y = c_points.y[j];
 
-                point_pose->color.r = color_map[i][0];
-                point_pose->color.g = color_map[i][1];
-                point_pose->color.b = color_map[i][2];
+                std_msgs::msg::ColorRGBA color;
+                color.r = color_map[i][0];
+                color.g = color_map[i][1];
+                color.b = color_map[i][2];
+                color.a = 1.0;
 
-                point_pose->pose.position.x = c_points.x[j];
-                point_pose->pose.position.y = c_points.y[j];
-                point_pose->pose.orientation.z = 0.0; 
-
-                pose_cluster_arr->markers.push_back(*point_pose);  
+                point_pose->points.push_back(point);
+                point_pose->colors.push_back(color);
             }
+
+            pose_cluster_arr->markers.push_back(*point_pose);  
         }
         return pose_cluster_arr;
     }
@@ -405,41 +320,19 @@ public:
     void run()
     {   
 
-        rclcpp::Rate rate(5);
+        rclcpp::Rate rate(1);
 
         while (rclcpp::ok())
         {
+            RCLCPP_INFO(this->get_logger(), "Executing Kmeans_clustering...");
 
             update_position(objs);
             Points points = cal_raw_data(objs, n_points, rand_d);
             auto clusters = klmeans_clustering(points, n_cluster);   
 
-            for (auto val_ob : objs.cx)
-            {
-                std::cout << val_ob << " ";
-            }
-            std::cout << std::endl;
-
-            for (auto val_cl : clusters.getCenterX())
-            {
-                std::cout << val_cl << " ";
-            }
-            std::cout << std::endl;
-
-            // clusters.printClusterCenX();
-
-            // std::cout << objs.cx[0] << std::endl;
-            // std::cout << "clusters.getX().size(): " << clusters.getX().size() << std::endl;
-
             float scale_objs = 1.5;
-            // auto pose_objs_arr = setup_obj_pose_msg(objs, scale_objs);
-            // obj_pose_publisher_->publish(std::move(*pose_objs_arr));
-
             float scale_point_cluster = 0.5;
-            // auto pose_cluster_arr = setup_cluster_msg(clusters, scale_point_cluster);
             auto kmeans_cluster_arr = setup_kmeans_msg(objs, clusters, scale_objs, scale_point_cluster);
-
-            // cluster_pose_publisher_->publish(std::move(*pose_cluster_arr));
 
             kmeans_publisher_->publish(*kmeans_cluster_arr);
             kmeans_cluster_arr->markers.clear();
@@ -455,17 +348,19 @@ int main(int argc, char** argv)
 
     rclcpp::init(argc, argv);
 
+    // initialize parameters
     float d_cost = 0.01;
     Objs objs;
-    objs.cx = {0.0, 3.0, 5.0};
-    objs.cy = {0.0, 1.0, 2.5};
-    int n_points = 20;
+    objs.cx = {0.0, 7.0, -9.0};
+    objs.cy = {0.0, 6.0, -9.5};
+    int n_points = 30;
     float rand_d = 3.0;
     int n_cluster = 3;    
 
+    // Executing
     auto node = std::make_shared<KmeansClustering>(d_cost, objs, n_points, n_cluster, rand_d);
     node->run();
-
+    
     rclcpp::shutdown();
     return 0;
 }
