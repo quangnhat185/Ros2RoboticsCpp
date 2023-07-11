@@ -18,7 +18,6 @@ Implement popular robotics algorithms in C++ and ROS2
         - [ ] Probabilistic Road-Map
         - [ ] Rapid-Exploring Random Trees (RRT)
 
-
 ## Localization 
 - [**EKF_localization**](./src/ekf_localization/)
     * Red Markers: Robot pose estimated with EKF
