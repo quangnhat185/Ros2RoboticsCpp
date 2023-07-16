@@ -1,43 +1,45 @@
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include <cmath>
+#include <eigen3/Eigen/Dense>
 #include <functional>
 #include <memory>
-#include <string>
-#include <cmath>
-#include "rclcpp/rclcpp.hpp"
-#include <eigen3/Eigen/Dense>
-#include "visualization_msgs/msg/marker_array.hpp"
-#include "visualization_msgs/msg/marker.hpp"
 #include <random>
-
+#include <string>
 
 using namespace Eigen;
 using namespace std;
 
-class EKFSlamPub : public rclcpp::Node
-{
+class EKFSlamPub : public rclcpp::Node {
 private:
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
+      pose_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
+      lm_publisher_;
 
-	rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pose_publisher_;
-	rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr lm_publisher_;
-	
-  float MAX_RANGE, M_DIST_TH;
+  double MAX_RANGE, M_DIST_TH;
   int STATE_SIZE, LM_SIZE;
 
   MatrixXd xTrue, xEst, PEst, xd, ud, rf_id, z;
 
 public:
-  float pi = atan(1) * 4;
-  float DT = 0.1;
+  double pi = atan(1) * 4;
+  double DT = 0.1;
   MatrixXd u, Q_sim, R_sim, Cx;
 
-  EKFSlamPub(float max_range, float m_dist_th, int state_size, int lm_size,
-          MatrixXd &rf_id, MatrixXd &u) : Node("ekf_slam_publisher"), MAX_RANGE(max_range), M_DIST_TH(m_dist_th), STATE_SIZE(state_size),
-        LM_SIZE(lm_size), rf_id(rf_id), u(u)
+  EKFSlamPub(double max_range, double m_dist_th, int state_size, int lm_size,
+             MatrixXd &rf_id, MatrixXd &u)
+      : Node("ekf_slam_publisher"), MAX_RANGE(max_range), M_DIST_TH(m_dist_th),
+        STATE_SIZE(state_size), LM_SIZE(lm_size), rf_id(rf_id), u(u)
 
   {
 
-		pose_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("robot_pose", 10);
+    pose_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>(
+        "robot_pose", 10);
 
-    lm_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("lm_pose", 10);
+    lm_publisher_ =
+        create_publisher<visualization_msgs::msg::MarkerArray>("lm_pose", 1);
 
     xTrue = MatrixXd::Zero(STATE_SIZE, 1);
 
@@ -48,7 +50,7 @@ public:
 
     // EKF state covariance
     Cx = MatrixXd(3, 3);
-    Cx.diagonal() << pow(0.5, 2), pow(0.5, 2), pow(deg2rad(30), 2);
+    Cx.diagonal() << pow(0.5, 2), pow(0.5, 2), pow(deg2rad(10), 2);
     // cout << Cx << endl;
 
     // Prediction noise
@@ -80,21 +82,28 @@ public:
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    std::normal_distribution<double> dis(0.0f, 1.0f);
 
-    vector<vector<float>> z_vec;
+    // vector<vector<double>> z_vec;
+    MatrixXd z = MatrixXd::Zero(0, 3);
+    // MatrixXd new_z;
 
     for (int i = 0; i < rf_id.rows(); i++) {
-      float dx = rf_id(i, 0) - xTrue(0, 0);
-      float dy = rf_id(i, 1) - xTrue(1, 0);
-      float d = sqrt(pow(dx, 2) + pow(dx, 2));
+      double dx = rf_id(i, 0) - xTrue(0, 0);
+      double dy = rf_id(i, 1) - xTrue(1, 0);
+      double d = sqrt(pow(dx, 2) + pow(dy, 2));
 
-      float angle = pi2pi(atan2(dy, dx) - xTrue(2, 0));
+      double angle = pi2pi(atan2(dy, dx) - xTrue(2, 0));
+
       if (d <= MAX_RANGE) {
         // add noise to gps
-        float dn = d + dis(gen) * pow(Q_sim(0, 0), 0.5);
-        float angle_n = angle + dis(gen) * pow(Q_sim(1, 1), 0.5);
-        z_vec.push_back({dn, angle_n, (float)i});
+        double dn = d + dis(gen) * pow(Q_sim(0, 0), 0.5);
+        double angle_n = angle + dis(gen) * pow(Q_sim(1, 1), 0.5);
+        // z_vec.push_back({dn, angle_n, (double)i});
+
+        MatrixXd prev_z = z;
+        z = MatrixXd(z.rows() + 1, z.cols());
+        z << prev_z, dn, angle_n, float(i);
       }
     }
 
@@ -105,13 +114,11 @@ public:
 
     xd = motion_model(xd, ud);
 
-    MatrixXd z = vec2mat(z_vec);
-
     return vector<MatrixXd>{xTrue, z, xd, ud};
   }
 
   // Calculate the number of landmarks currently tracked in the  state
-  int calc_n_LM(MatrixXd x) {
+  int calc_n_LM(MatrixXd &x) {
     int n = (x.rows() - STATE_SIZE) / LM_SIZE;
     return n;
   }
@@ -120,7 +127,7 @@ public:
   vector<MatrixXd> jacob_motion(MatrixXd x, MatrixXd u) {
     MatrixXd Fx = MatrixXd::Identity(STATE_SIZE, STATE_SIZE);
 
-    float theta = x(2, 0);
+    double theta = x(2, 0);
 
     MatrixXd jF = MatrixXd(3, 3);
     jF << 0.0, 0.0, -DT * u(0, 0) * std::sin(theta), 0.0, 0.0,
@@ -150,8 +157,8 @@ public:
     return lm;
   }
 
-  MatrixXd jacob_h(float q, MatrixXd delta, MatrixXd x, int i) {
-    float sq = pow(q, 0.5);
+  MatrixXd jacob_h(double q, MatrixXd delta, MatrixXd x, int i) {
+    double sq = pow(q, 0.5);
     MatrixXd G = MatrixXd(2, 5);
     G << -sq * delta(0, 0), -sq * delta(1, 0), 0, sq * delta(0, 0),
         sq * delta(1, 0), delta(0, 0), -delta(0, 0), -q, -delta(0, 0),
@@ -206,9 +213,9 @@ public:
 
     MatrixXd delta = lm - pos;
 
-    float q = (delta.transpose() * delta)(0, 0);
+    double q = (delta.transpose() * delta)(0, 0);
 
-    float z_angle = atan2(delta(1, 0), delta(0, 0)) - xEst(2, 0);
+    double z_angle = atan2(delta(1, 0), delta(0, 0)) - xEst(2, 0);
 
     MatrixXd zp(1, 2);
     zp << sqrt(q), pi2pi(z_angle);
@@ -223,9 +230,10 @@ public:
   }
 
   // Landmark association with Mahalanobis distance
-  int search_correspond_landmark_id(MatrixXd xAug, MatrixXd PAug, MatrixXd zi) {
+  int search_correspond_landmark_id(MatrixXd &xAug, MatrixXd &PAug,
+                                    MatrixXd &zi) {
     int nLM = calc_n_LM(xAug);
-    vector<float> min_dist;
+    vector<double> min_dist;
 
     for (int i = 0; i < nLM; i++) {
       auto lm = get_landmark_position_from_state(xAug, i);
@@ -233,7 +241,7 @@ public:
       MatrixXd y = calc_inno_res[0];
       MatrixXd S = calc_inno_res[1];
 
-      float dist = (y.transpose() * S.inverse() * y)(0, 0);
+      double dist = (y.transpose() * S.inverse() * y)(0, 0);
       min_dist.push_back(dist);
     }
 
@@ -244,7 +252,7 @@ public:
     return min_idx;
   }
 
-  MatrixXd vec2mat(vector<vector<float>> z_vec) {
+  MatrixXd vec2mat(vector<vector<double>> z_vec) {
     int n_rows = z_vec.size();
     int n_cols = z_vec[0].size();
 
@@ -258,9 +266,9 @@ public:
     return z;
   }
 
-  float pi2pi(float angle) { return fmod((angle + pi), (2 * pi)) - pi; }
+  double pi2pi(double angle) { return fmod((angle + pi), (2 * pi)) - pi; }
 
-  float deg2rad(float deg_angle) { return deg_angle * pi / 180; }
+  double deg2rad(double deg_angle) { return deg_angle * pi / 180; }
 
   vector<MatrixXd> ekf_slam(MatrixXd &xEst, MatrixXd &PEst, MatrixXd &u,
                             MatrixXd &z) {
@@ -270,6 +278,7 @@ public:
     auto res_jm = jacob_motion(xEst_pose, u);
     MatrixXd G = res_jm[0];
     MatrixXd Fx = res_jm[1];
+
     xEst.block(0, 0, S, xEst.cols()) = motion_model(xEst_pose, u);
 
     MatrixXd PEst_pose = PEst.block(0, 0, S, S);
@@ -284,6 +293,7 @@ public:
       int min_id = search_correspond_landmark_id(xEst, PEst, zi);
       int nLM = calc_n_LM(xEst);
 
+      // cout << min_id << " " << nLM << endl;
       if (min_id == nLM) {
         cout << "[INFO]: Found new Landmark" << endl;
         MatrixXd lm_pos = calc_landmark_pos(xEst, zi);
@@ -302,18 +312,17 @@ public:
 
         xEst = xAug;
         PEst = PAug;
-
-        MatrixXd lm = get_landmark_position_from_state(xEst, min_id);
-
-        auto inno_vec = calc_innovation(lm, xEst, PEst, zi, min_id);
-        MatrixXd y = inno_vec[0];
-        MatrixXd S = inno_vec[1];
-        MatrixXd H = inno_vec[2];
-
-        MatrixXd K = (PEst * H.transpose()) * S.inverse();
-        xEst = xEst + (K * y);
-        PEst = (MatrixXd::Identity(xEst.rows(), xEst.rows())) - (K * H) * PEst;
       }
+
+      MatrixXd lm = get_landmark_position_from_state(xEst, min_id);
+
+      auto inno_vec = calc_innovation(lm, xEst, PEst, zi, min_id);
+      MatrixXd y = inno_vec[0];
+      MatrixXd S = inno_vec[1];
+      MatrixXd H = inno_vec[2];
+      MatrixXd K = (PEst * H.transpose()) * S.inverse();
+      xEst = xEst + (K * y);
+      PEst = (MatrixXd::Identity(xEst.rows(), xEst.rows())) - (K * H) * PEst;
     }
 
     xEst(2, 0) = pi2pi(xEst(2, 0));
@@ -321,13 +330,11 @@ public:
     return {xEst, PEst};
   }
 
-  void setup_lm_msg( 
-    MatrixXd &lm_pose, 
-    unique_ptr<visualization_msgs::msg::Marker> &marker, 
-    string name,
-    vector<float> &colors, 
-    float scale , int counter)
-  {
+  void setup_lm_msg(MatrixXd &lm_pose,
+                    unique_ptr<visualization_msgs::msg::Marker> &marker,
+                    string name, vector<double> &colors, float trans,
+                    double scale, int counter) {
+
     auto timestamp = this->get_clock()->now();
     marker->header.frame_id = "map";
     marker->header.stamp = timestamp;
@@ -339,16 +346,12 @@ public:
     marker->scale.x = scale;
     marker->scale.y = scale;
     marker->scale.z = scale;
-    marker->color.a = 0.5;
+    marker->color.a = trans;
     marker->color.r = colors[0];
     marker->color.g = colors[1];
     marker->color.b = colors[2];
-    // marker->pose.position.x = lm_pose(0, 0);
-    // marker->pose.position.y = lm_pose(1, 0);
-    // marker->pose.orientation.z = lm_pose(2, 0);
 
-    for (int i = 0; i < lm_pose.rows(); i++)
-    {
+    for (int i = 0; i < lm_pose.rows(); i++) {
       geometry_msgs::msg::Point point;
       point.x = lm_pose(i, 0);
       point.y = lm_pose(i, 1);
@@ -364,81 +367,137 @@ public:
     }
   }
 
+  void setup_pose_msg(MatrixXd &pose,
+                      unique_ptr<visualization_msgs::msg::Marker> &marker,
+                      string name, vector<double> &colors, double scale,
+                      int counter) {
+
+    auto timestamp = this->get_clock()->now();
+    marker->header.frame_id = "map";
+    marker->header.stamp = timestamp;
+    marker->ns = name;
+    marker->id = counter;
+    marker->type = visualization_msgs::msg::Marker::SPHERE;
+    marker->action = visualization_msgs::msg::Marker::ADD;
+    marker->lifetime = rclcpp::Duration::from_seconds(0);
+    marker->scale.x = scale;
+    marker->scale.y = scale;
+    marker->scale.z = scale;
+    marker->color.a = 1.0;
+    marker->color.r = colors[0];
+    marker->color.g = colors[1];
+    marker->color.b = colors[2];
+    marker->pose.position.x = pose(0, 0);
+    marker->pose.position.y = pose(1, 0);
+    marker->pose.orientation.z = 0.0;
+  }
+
   void run() {
 
-    auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
+    auto pose_msg_arr =
+        std::make_unique<visualization_msgs::msg::MarkerArray>();
     auto lm_pose_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
-    
-    auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
-    auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
-    auto markerposeDr = std::make_unique<visualization_msgs::msg::Marker>();
 
     int counter = 0;
-    float lm_scale = 1.5;
-    // float pose_scale = 0.5;
-    vector<float> black = {0, 0, 0};
-    vector<float> green = {0, 1, 0};
-    rclcpp::Rate rate(5);
+    double lm_scale = 1.5;
+    double pose_scale = 0.5;
+    // double pose_scale = 0.5;
+    // rgb color vector
+    vector<double> black = {0, 0, 0};
+    vector<double> green = {0, 1, 0};
+    vector<double> blue = {0, 0, 1};
+    vector<double> red = {1, 0, 0};
+
+    float lmEst_trans = 0.5;
+    float lmTrue_trans = 1.0;
+    rclcpp::Rate rate(10);
 
     while (rclcpp::ok()) {
+
+      // if (counter==5) break;
       auto obs_res = observation(xTrue, xd, u, rf_id);
       MatrixXd xTrue = obs_res[0];
       MatrixXd z = obs_res[1];
+
       MatrixXd xd = obs_res[2];
       MatrixXd ud = obs_res[3];
 
       auto ekf_res = ekf_slam(xEst, PEst, ud, z);
       MatrixXd xEst = ekf_res[0];
       MatrixXd PEst = ekf_res[1];
+      MatrixXd poseEst = xEst.block<3, 1>(0, 0);
 
-      auto markerposelmTrue = std::make_unique<visualization_msgs::msg::Marker>();
-      auto markerposelmEst = std::make_unique<visualization_msgs::msg::Marker>();
+      auto markerposelmTrue =
+          std::make_unique<visualization_msgs::msg::Marker>();
+      auto markerposelmEst =
+          std::make_unique<visualization_msgs::msg::Marker>();
 
       int nLM = calc_n_LM(xEst);
       MatrixXd lmEst = MatrixXd(nLM, LM_SIZE);
 
-      for (int i = 0; i < nLM; i++)
-      { 
-        lmEst(i, 0) = xEst(i*2 + STATE_SIZE, 0);
-        lmEst(i, 1) = xEst(i*2 + STATE_SIZE + 1, 0);
+      for (int i = 0; i < nLM; i++) {
+        lmEst(i, 0) = xEst(i * 2 + STATE_SIZE, 0);
+        lmEst(i, 1) = xEst(i * 2 + STATE_SIZE + 1, 0);
       }
 
-
-      // TO-DO: lmEst are not accurate
-
-      setup_lm_msg(lmEst, markerposelmEst, "poseEst", green, lm_scale, counter);
-      setup_lm_msg(rf_id, markerposelmTrue, "poseTrue", black, lm_scale, counter);
-      
+      setup_lm_msg(lmEst, markerposelmEst, "lmEst", green, lmEst_trans,
+                   lm_scale, counter);
+      setup_lm_msg(rf_id, markerposelmTrue, "lmTrue", black, lmTrue_trans,
+                   lm_scale, counter);
       lm_pose_arr->markers.push_back(*markerposelmEst);
       lm_pose_arr->markers.push_back(*markerposelmTrue);
+
+      auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
+      auto markerposeEst = std::make_unique<visualization_msgs::msg::Marker>();
+      auto markerposeDr = std::make_unique<visualization_msgs::msg::Marker>();
+
+      setup_pose_msg(xTrue, markerposeTrue, "poseTrue", blue, pose_scale,
+                     counter);
+      setup_pose_msg(xd, markerposeDr, "poseDr", black, pose_scale, counter);
+      setup_pose_msg(poseEst, markerposeEst, "poseEst", red, pose_scale,
+                     counter);
+
+      pose_msg_arr->markers.push_back(*markerposeTrue);
+      pose_msg_arr->markers.push_back(*markerposeDr);
+      pose_msg_arr->markers.push_back(*markerposeEst);
+
       counter++;
 
       lm_publisher_->publish(std::move(*lm_pose_arr));
+      pose_publisher_->publish(std::move(*pose_msg_arr));
 
+      // cout << z << endl;
+      // cout << "###################" << endl;
       rate.sleep();
     }
   }
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
   rclcpp::init(argc, argv);
 
-  float max_range = 20.0;
-  float m_dist_th = 2.0;
+  double max_range = 20.0;
+  double m_dist_th = 2.0;
   int state_size = 3;
   int lm_size = 2;
 
   MatrixXd rf_id(4, 2);
-  rf_id << 10.0, 0.0, 15.0, 10.0, 0.0, 15.0, -5.0, 25.0;
+  rf_id << 10.0, 0.0, 15.0, 10.0, 3.0, 15.0, -10.0, 25.0;
+
+  // rf_id <<
+  //         10.0, -2.0,
+  //         15.0, 10.0,
+  //         3.0, 15.0,
+  //         -5.0, 20.0;
 
   MatrixXd u(2, 1);
   double trans_vel = 1.0;
   double yaw_rate = 0.1;
   u << trans_vel, yaw_rate;
 
-  // EKFSlamPub node(max_range, m_dist_th, state_size, lm_size, rf_id, u);
-  auto node = make_shared<EKFSlamPub>(max_range, m_dist_th, state_size, lm_size, rf_id, u);
+  auto node = make_shared<EKFSlamPub>(max_range, m_dist_th, state_size, lm_size,
+                                      rf_id, u);
   node->run();
 
   rclcpp::shutdown();

@@ -10,7 +10,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [x] Lidar to grid map
         - [x] Kmeans_clustering
     - SLAM:
-        - [ ] EKF SLAM
+        - [x] EKF SLAM
         - [ ] FastSLAM 
     - Path Planning
         - [ ] Dynamic Window Approach
@@ -70,7 +70,22 @@ Implement popular robotics algorithms in C++ and ROS2
 
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/Kmeans.gif" width="960" />
-    </p>                 
+    </p>      
+
+- [**EKF SLAM**](./src/ekf_slam/)
+    * Red Sphere: Robot pose estimated with EKF-SLAM
+    * Blue Markers: Ground-truth poses
+    * Black Markers: Robot pose estimated with Dead Reckoning
+    * Black Rec: GT poses of Landmarks
+    * Green Rec: Landmark poses estimated with EKF-SLAM
+
+    ```bash
+    ros2 launch kmeans_clustering kmeans.launch.py 
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/ekf_slam.gif" width="960" />
+    </p>                
 
 
 ## Reference
