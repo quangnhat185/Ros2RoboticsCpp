@@ -80,7 +80,7 @@ Implement popular robotics algorithms in C++ and ROS2
     * Green Rec: Landmark poses estimated with EKF-SLAM
 
     ```bash
-    ros2 launch kmeans_clustering kmeans.launch.py 
+    ros2 launch ekf_slam ekf_slam.launch.py
     ```
 
     <p align="center">
