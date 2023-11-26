@@ -38,8 +38,10 @@ public:
     }
 
     // motion model
-    VectorXd motion(VectorXd x,  VectorXd u, double dt)
+    VectorXd motion(VectorXd &x,  VectorXd &u, double dt)
     {
+
+        // cout << u.transpose() << endl;
         x(0) += u(0) * cos(x(2)) * dt; // x_pos (m)
         x(1) += u(0) * sin(x(2)) * dt; // y_pos (m)
         x(2) += u(1) * dt; // omega (rad)
@@ -52,6 +54,8 @@ public:
     VectorXd calc_dynamic_window(const VectorXd &x)
     // caclulate dynamic window based on current state x
     {
+
+        // cout << x.transpose() << endl;
         // Dynamic window from robot specification
         VectorXd Vs(4);
         Vs << min_speed, max_speed, -max_yaw_rate, max_yaw_rate;
@@ -64,6 +68,8 @@ public:
             x(4) - max_delta_yaw_rate * dt,
             x(4) + max_delta_yaw_rate * dt;
 
+
+        // cout << "Vs(2): " << Vs(2) << " Vd(2): " << Vd(2) << endl;
         //  (v_min, v_max, yaw_rate_min, yaw_rate_max)
         VectorXd dw(4);
         dw << 
@@ -77,20 +83,22 @@ public:
     // predict trajectory with an input
     MatrixXd predict_trajectory(const VectorXd &x_init, double v, double y)
     {
+
         int steps = static_cast<int>(predict_time / dt);
         VectorXd x = x_init;
         VectorXd u(2);
         u << v, y;
+
         MatrixXd trajectory = MatrixXd::Zero(steps+1, x_init.size());
         trajectory.row(0) = x.transpose();
 
         for (int i=1; i <= steps; i++)
         {   
-            x = motion(x, u, dt);            
+            x = motion(x, u, dt); 
             trajectory.row(i) = x.transpose();
         }
 
-        // cout << trajectory << endl;
+        // cout << trajectory.row(0) << endl;
         return trajectory;
     }
 
@@ -107,7 +115,6 @@ public:
         // obtain smallest angle differences following periodic property
         cost = abs(atan2(sin(cost_angle), cos(cost_angle)));
         
-        // cout << cost << endl;
         return cost;
     }
 
@@ -120,6 +127,7 @@ public:
         int drows = ox.rows();
         int dcols = trajectory.rows();
 
+        // cout << trajectory.col(0).transpose()(0) << endl;
         // MatrixXd dx(drows, dcols);
         // MatrixXd dy(drows, dcols);
 
@@ -140,15 +148,17 @@ public:
         // distance from every point on the trajectory
         // to each obstacles
         MatrixXd dis2obs = (dx.array().pow(2) + dy.array().pow(2)).sqrt();
-        // cout << oy << endl;
+        // cout << dis2obs.row(0)(dis2obs.cols()-1) << endl;
 
         double min_dis = dis2obs.minCoeff();
+
         if (min_dis <= robot_radius){
             return numeric_limits<double>::infinity();
         }
 
         // the closer the robot to obstacles
         // the higher the cost
+        // cout << min_dis << endl;
         return 1 / min_dis;
     }
 
@@ -157,27 +167,31 @@ public:
         const VectorXd &dw,
         const VectorXd &goal)
     {
-        MatrixXd best_trajectory;
         VectorXd x_init = x;
+        MatrixXd best_trajectory;
+        best_trajectory = x;
         double min_cost = numeric_limits<double>::infinity();
         VectorXd best_u = VectorXd::Zero(2);
 
-        double v = dw(0), y = dw(2); // min trans and rot velocity
+        // double v = dw(0), y = dw(2); // min trans and rot velocity
         
-        // cout << dw.transpose() << endl;
-        for (v; v <= dw(1); v+=v_resolution)
+        // cout << dw(0) << " - " << dw(1) << endl;
+        for (double v = dw(0); v <= dw(1); v+=v_resolution)
         {
-            for (y; y <= dw(3); y+=yaw_rate_resolution)
+            for (double y = dw(2); y <= dw(3); y+=yaw_rate_resolution)
             {
                 MatrixXd trajectory = predict_trajectory(x_init, v, y);
-
+                // cout << trajectory.row(trajectory.rows()-1) << endl;
+                
+            
                 double to_goal_cost = to_goal_cost_gain * calc_to_goal_cost(trajectory, goal);
                 double speed_cost = speed_cost_gain * (max_speed - trajectory(trajectory.rows()-1, 3));
                 double ob_cost = obstacle_cost_gain * calc_obstacle_cost(trajectory);
 
                 double final_cost = to_goal_cost + speed_cost + ob_cost;
 
-                // cout << to_goal_cost << "\n" << speed_cost << "\n" << ob_cost << endl;
+                // cout << final_cost << endl;
+                // "\n" << speed_cost << "\n" << ob_cost << endl;
 
                 if (min_cost >= final_cost)
                 {
@@ -194,10 +208,9 @@ public:
                         best_u[1] = -max_delta_yaw_rate;
                     }
                 }
-
+                // cout << "v: " << v << " min_cost: " << min_cost << endl;
             }
         }
-
         return make_pair(best_u, best_trajectory);
     }
 
@@ -260,7 +273,7 @@ int main(int argc, char** argv)
         auto res_run = RobotDW.dwa_run(x, goal);
         VectorXd u = res_run.first;
         x = RobotDW.motion(x, u, RobotDW.dt);
-        cout << u.transpose() << endl;
+        cout << x.transpose() << endl;
         counter++;
     }
 
