@@ -1,0 +1,4 @@
+#!/bin/bash
+
+file=$(basename $1 .cpp)
+g++ -o $file ${file}.cpp && ./$file
