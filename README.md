@@ -13,7 +13,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [x] EKF SLAM
         - [ ] FastSLAM 
     - Path Planning
-        - [ ] Dynamic Window Approach
+        - [x] Dynamic Window Approach
         - [ ] A* 
         - [ ] Probabilistic Road-Map
         - [ ] Rapid-Exploring Random Trees (RRT)
@@ -85,6 +85,20 @@ Implement popular robotics algorithms in C++ and ROS2
 
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/ekf_slam.gif" width="960" />
+    </p>                
+
+- [**Dynamic Window Apporach**](./src/dwa/)
+    * Red Sphere: Robot pose and its traversal path
+    * Green Markers: Best predicted trajectory
+    * Black Markers: Obstacles
+    * Yellow Markers: Goal
+
+    ```bash
+    ros2 launch dwa dwa_run.launch.py
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/dwa.gif" width="960" />
     </p>                
 
 

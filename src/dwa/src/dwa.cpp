@@ -405,9 +405,9 @@ public:
     {
         rclcpp::Rate rate(100);
         
-        double obstacle_scale = 1.0;
+        double obstacle_scale = 0.7;
         double goal_scale = 1.5;
-        double robot_scale = 1.0;
+        double robot_scale = 0.8;
         double trajectory_scale = 0.25;
         double path_scale = 0.25;
 
