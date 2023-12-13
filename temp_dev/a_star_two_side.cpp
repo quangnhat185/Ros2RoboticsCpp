@@ -92,7 +92,10 @@ VectorXi random_coordinate(const VectorXi& bottom_vertex, const VectorXi& top_ve
     return coordinate;
 }
 
-MatrixXi gen_random_obstacles(const VectorXi& bottom_vertex, const VectorXi& top_vertex, int obs_size, int seed)
+MatrixXi gen_random_obstacles(
+    const VectorXi& bottom_vertex, const VectorXi& top_vertex, 
+    const VectorXi& start, const VectorXi& goal,
+    int obs_size, int seed)
 {
     // generate random obstacles
     // Create a random number generator and seed it
@@ -110,14 +113,21 @@ MatrixXi gen_random_obstacles(const VectorXi& bottom_vertex, const VectorXi& top
 
     MatrixXi obstacles(obs_size, 2);
     
-    for (int i = 0; i < obs_size; i++)
+    int counter =  0;
+    while (counter < obs_size)
     {
         int x = distribution_x(generator);
         int y = distribution_y(generator);
-        obstacles.row(i) << x, y;
+
+        if ((x == start(0) && y == start(1)) || (x == goal(0) && y == goal(1)))
+        {   
+            continue;
+        }
+
+        obstacles.row(counter) << x, y;
+        counter++;
     }
 
-    // cout << "Random obstacles: \n" << obstacles << endl;
     return obstacles;
 }
     
@@ -153,7 +163,7 @@ BoundObs boundary_and_obstacles(
     bound.col(1) << ay, by, cy, dy;
 
     // generate random obstacles
-    MatrixXi obstacles = gen_random_obstacles(bottom_vertex, top_vertex, obs_size, seed);
+    MatrixXi obstacles = gen_random_obstacles(bottom_vertex, top_vertex, start, goal, obs_size, seed);
 
     MatrixXi bound_obs(bound.rows() + obstacles.rows(), 2);
     bound_obs << bound, obstacles;
@@ -205,6 +215,117 @@ public:
             }
         }
         return vec_intersect;
+    }
+
+    bool is_coor_in_list(const VectorXi& vec, const vector<VectorXi>& vec_list)
+    {
+        for (const auto& val : vec_list)
+        {
+            if (val == vec)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool is_coor_in_mat(const VectorXi& vec, const MatrixXi& mat)
+    {
+        for (int i = 0; i < mat.rows(); i++)
+        {
+            if (mat.row(i) == vec.transpose())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    vector<VectorXi> find_neighbor(Node* node, MatrixXi& obstacles, vector<VectorXi>& closed)
+    {
+        vector<VectorXi> neighbor_list;
+        bool occup_map[3][3];
+
+        for (int x = node->coordinate(0) - 1; x < node->coordinate(0)+2; x++)
+        {
+            for (int y = node->coordinate(1) - 1; y < node->coordinate(1)+2; y++)
+            {
+                VectorXi temp(2);
+                temp << x, y;
+                
+                for (int i = 0; i < obstacles.rows(); i++)
+                {   
+                    // Append neighbor if it is not in obstacles and not being the node itself
+                    if (temp.transpose()!=obstacles.row(i) || temp!=node->coordinate)
+                    {
+                        neighbor_list.push_back(temp);
+                    }
+                }
+            }
+        }
+
+        // remove neighbor nodes who cross through two diagonal obstacles
+
+        // initialize top, bottom, left, right neighbor
+        VectorXi top_nei(2), bottom_nei(2), left_nei(2), right_nei(2);
+        top_nei << node->coordinate(0), node->coordinate(1) + 1;
+        bottom_nei << node->coordinate(0), node->coordinate(1) - 1;
+        left_nei << node->coordinate(0) - 1, node->coordinate(1);
+        right_nei << node->coordinate(0) + 1, node->coordinate(1);
+
+
+        // check if neighbor are obstacles
+        if (is_coor_in_mat(top_nei, obstacles))
+        {
+            occup_map[0][1] = true;
+        }
+        
+        if (is_coor_in_mat(bottom_nei, obstacles))
+        {
+            occup_map[2][1] = true;
+        }
+
+        if (is_coor_in_mat(left_nei, obstacles))
+        {
+            occup_map[1][0] = true;
+        }
+
+        if (is_coor_in_mat(right_nei, obstacles))
+        {
+            occup_map[1][2] = true;
+        }
+
+        // Initilize lelf-top, right-top, left-bottom, right-bottom neighbor
+        VectorXi lt_nei(2), rt_nei(2), lb_nei(2), rb_nei(2);
+        lt_nei << node->coordinate(0) - 1, node->coordinate(1) + 1;
+        rt_nei << node->coordinate(0) + 1, node->coordinate(1) + 1;
+        lb_nei << node->coordinate(0) - 1, node->coordinate(1) - 1;
+        rb_nei << node->coordinate(0) + 1, node->coordinate(1) - 1;
+
+
+        // Remove neighbor nodes who cross through two diagonal obstacles
+        if (is_coor_in_list(lt_nei, neighbor_list) && occup_map[0][1] && occup_map[1][0])
+        {
+            neighbor_list.erase(std::remove(neighbor_list.begin(), neighbor_list.end(), lt_nei), neighbor_list.end());
+        }
+
+        if (is_coor_in_list(rt_nei, neighbor_list) && occup_map[0][1] && occup_map[1][2])
+        {
+            neighbor_list.erase(std::remove(neighbor_list.begin(), neighbor_list.end(), rt_nei), neighbor_list.end());
+        }
+
+        if (is_coor_in_list(lb_nei, neighbor_list) && occup_map[2][1] && occup_map[1][0])
+        {
+            neighbor_list.erase(std::remove(neighbor_list.begin(), neighbor_list.end(), lb_nei), neighbor_list.end());
+        }
+
+        if (is_coor_in_list(rb_nei, neighbor_list) && occup_map[2][1] && occup_map[1][2])
+        {
+            neighbor_list.erase(std::remove(neighbor_list.begin(), neighbor_list.end(), rb_nei), neighbor_list.end());
+        }
+
+
+        return neighbor_list;
     }
 };
 
