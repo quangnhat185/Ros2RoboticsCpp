@@ -386,9 +386,7 @@ public:
             }
 
             // delete node from open list and add it to closed list
-            // cout << "Before erase" << open_list.size() << endl;
             open_list.erase(std::remove(open_list.begin(), open_list.end(), node), open_list.end());
-            // cout << "After erase" << open_list.size() << endl;
             closed_list.push_back(node);
             
             // sort open_list by total cost F
@@ -450,10 +448,12 @@ public:
             // Initialize target
             VectorXi target_goal = end;
             vector<VectorXi> final_path;
+
+            int counter = 0;
             while (true)
             {
-
-                cout << "Update" << endl;
+                counter++;
+                cout << "[INFO] Iteration #" << counter << "....." << endl;
                 // Searching from start to end
                 find_path(origin_open, origin_closed, target_goal, bound_obs);
 
@@ -478,7 +478,8 @@ public:
                     // we use the first intersected node in this case
 
                     final_path = get_path(origin_closed, goal_closed, intersected_node.front());
-                    cout << "Path found " << endl;
+                    cout << "[INFO] Path is found! " << endl;
+                    
                     break;
                 }
             }
@@ -486,31 +487,14 @@ public:
 };
 
 
-
-
 int main()
 {
-
-    // double G = 0.0;
-    // double H = 30.0;
-    // VectorXi coord(2);
-    // coord << 37, 20;
-    // VectorXi node_coord(2);
-    // node_coord << 31, 51;
-    // VectorXi update_coord(2);
-    // update_coord << 38, 19;
-
-    // Node* node1 = new Node(G, H, coord, nullptr);
-    // Node* fixed_node = new Node(G,H, coord, nullptr);
-    // // node1->hcost(node_coord, goal);
-    // node1->gcost(fixed_node, update_coord);
-
 
     VectorXi bottom_vertex(2);
     bottom_vertex << 0, 0;
 
     VectorXi top_vertex(2);
-    top_vertex << 60, 60;
+    top_vertex << 300, 300;
 
     int seed = 99;
     auto start = random_coordinate(bottom_vertex, top_vertex, seed-1);
@@ -518,15 +502,10 @@ int main()
 
     AStarTwoSide astar;
 
-    int num_obstacles = 1000;
+    int num_obstacles = 3000;
     Env env = boundary_and_obstacles(start, goal, top_vertex, bottom_vertex, num_obstacles, seed);
 
     astar.run(start, goal, env);
     
-    // fixed_node->coordinate = coords;
-    // vector<VectorXi> closed = {coords};
-    // auto neighbor = astar.find_neighbor(node1, obstacles, closed);
-    // cout << "Num neighbor: " << neighbor.size() << endl;
-
     return 0;
 }
