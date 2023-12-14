@@ -101,7 +101,7 @@ Implement popular robotics algorithms in C++ and ROS2
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/dwa.gif" width="960" />
     </p>                
 
-- [**A Star from two sides**](./src/dwa/)
+- [**A Star From Both Sides**](./src/a_star_two_sides)
     * Green Markers: Best predicted trajectory
     * Black Markers: Environment including boundary and obstacles
     * Yellow markers: Passing nodes from star to end 
