@@ -14,7 +14,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [ ] FastSLAM 
     - Path Planning
         - [x] Dynamic Window Approach
-        - [ ] A* 
+        - [x] A* 
         - [ ] Probabilistic Road-Map
         - [ ] Rapid-Exploring Random Trees (RRT)
 
@@ -100,6 +100,21 @@ Implement popular robotics algorithms in C++ and ROS2
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/dwa.gif" width="960" />
     </p>                
+
+- [**A Star from two sides**](./src/dwa/)
+    * Green Markers: Best predicted trajectory
+    * Black Markers: Environment including boundary and obstacles
+    * Yellow markers: Passing nodes from star to end 
+    * Green marker: Passing nodes from end to start
+
+    ```bash
+    ros2 launch a_star_two_sides a_star_two_sides.launch.py
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/a_star_two_sides.gif" width="960" />
+    </p>   
+
 
 
 ## Reference
