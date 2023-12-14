@@ -195,7 +195,7 @@ public:
     vector<double> red = {1, 0, 0};
     vector<double> yellow = {1, 1, 0};
 
-    AStarTwoSide() : Node("a_star_two_sides")
+    AStarTwoSide() : Node("a_star_node")
     {
         // Initialize publisher
         targets_publisher = this->create_publisher<visualization_msgs::msg::Marker>("targets", 10);
@@ -738,6 +738,7 @@ public:
 int main(int argc, char** argv)
 {   
     rclcpp::init(argc, argv);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     VectorXi bottom_vertex(2);
     bottom_vertex << 0, 0;
