@@ -11,7 +11,7 @@ Implement popular robotics algorithms in C++ and ROS2
         - [x] Kmeans_clustering
     - SLAM:
         - [x] EKF SLAM
-        - [ ] FastSLAM 
+        - [x] FastSLAM 
     - Path Planning
         - [x] Dynamic Window Approach
         - [x] A* 
@@ -114,6 +114,22 @@ Implement popular robotics algorithms in C++ and ROS2
     <p align="center">
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/a_star_two_sides.gif" width="960" />
     </p>   
+
+- [**FastSLAM 1.0**](./src/fast_slam)
+    * Green Markers: Particle poses
+    * Black Markers: Robot pose estimated with Dead Reckoning
+    * Black Rec: Landmark poses
+    * Red Markers: Robot pose estimated with FastSlam 1.0
+    * Blue Markers: Robot pose GT
+
+    ```bash
+    ros2 launch fast_slam fastSlam1.launch.py
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/fastSlam.gif" width="960" />
+    </p>   
+
 
 
 
