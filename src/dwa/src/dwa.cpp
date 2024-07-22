@@ -7,57 +7,59 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <array>
 
 using namespace Eigen;
 using namespace std;
 
 class DWA : public rclcpp::Node{
 private:
-
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pose_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr goal_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr path_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr trajectory_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacle_publisher_;
 
-    // max_delta_yaw_rate is rotation velocity
+    // parameters
+    MatrixXd obstacles;
+    VectorXd x, goal;
     double max_speed, min_speed, max_yaw_rate, max_accel, max_delta_yaw_rate;
     double v_resolution, yaw_rate_resolution;
-public:
-    double pi = atan(1) * 4;
     double dt, predict_time, to_goal_cost_gain, speed_cost_gain, obstacle_cost_gain;
     double robot_stuck_flag_cons, robot_radius;
-    MatrixXd obstacles;
+
+public:
+    static constexpr double pi = atan(1) * 4;
     vector<pair<double, double>> saved_path;
-    VectorXd x, goal;
 
     // rgb color vector
-    vector<double> black = {0, 0, 0};
-    vector<double> green = {0, 1, 0};
-    vector<double> blue = {0, 0, 1};
-    vector<double> red = {1, 0, 0};
-    vector<double> yellow = {1, 1, 0};
+    static constexpr array<double, 3> black = {0, 0, 0};
+    static constexpr array<double, 3> green = {0, 1, 0};
+    static constexpr array<double, 3> blue = {0, 0, 1};
+    static constexpr array<double, 3> red = {1, 0, 0};
+    static constexpr array<double, 3> yellow = {1, 1, 0};
 
-
-
-    DWA(MatrixXd &obstacles, VectorXd &x, VectorXd &goal): Node("dynamic_window_approach"), obstacles(obstacles), x(x), goal(goal)
+    // constructor
+    DWA(MatrixXd &obstacles, VectorXd &x, VectorXd &goal)
+    : Node("dynamic_window_approach"), 
+        obstacles(obstacles), 
+        x(x), 
+        goal(goal),
+        max_speed(1.0), // [m/s]
+        min_speed(-0.5), // [m/s]
+        max_yaw_rate(40.0 * M_PI / 180.0), // [rad/s]
+        max_accel(0.2), // [m/ss]
+        max_delta_yaw_rate(40.0 * M_PI / 180.0), // [rad/ss]
+        v_resolution(0.01), // [m/s]
+        yaw_rate_resolution(0.1 * M_PI / 180.0), // [rad/s]
+        dt(0.1), // [s] Time tick for motion prediction
+        predict_time(4.0), // [s]
+        to_goal_cost_gain(0.15),
+        speed_cost_gain(1.0),
+        obstacle_cost_gain(1.0),
+        robot_stuck_flag_cons(0.001), // constant to prevent robot stuck
+        robot_radius(1.0)
     {
-        max_speed = 1.0; //[m/s]
-        min_speed = -0.5;  //[m/s]
-        max_yaw_rate = 40.0 * pi / 180.0;  //[rad/s]
-        max_accel = 0.2;  //[m/ss]
-        max_delta_yaw_rate = 40.0 * pi / 180.0;  //[rad/ss]
-        v_resolution = 0.01;  //[m/s]
-        yaw_rate_resolution = 0.1 * pi / 180.0;  //[rad/s]
-        dt = 0.1;  //[s] Time tick for motion prediction
-        predict_time = 4.0;  //[s]
-        to_goal_cost_gain = 0.15;
-        speed_cost_gain = 1.0;
-        obstacle_cost_gain = 1.0;
-        robot_stuck_flag_cons = 0.001; // constant to prevent robot stucked        
-        robot_radius = 1.0;
-
-
         pose_publisher_ = create_publisher<visualization_msgs::msg::Marker>("robot_pose", 10);
         trajectory_publisher_ = create_publisher<visualization_msgs::msg::Marker>("trajectory_pose", 10);
         path_publisher_ = create_publisher<visualization_msgs::msg::Marker>("path_pose", 10);
@@ -80,8 +82,8 @@ public:
         return x;
     }
 
-    VectorXd calc_dynamic_window(const VectorXd &x)
     // caclulate dynamic window based on current state x
+    VectorXd calc_dynamic_window(const VectorXd &x) const
     {
 
         // cout << x.transpose() << endl;
@@ -129,7 +131,7 @@ public:
     }
 
     // calc to goal cost with angle difference
-    double calc_to_goal_cost(const MatrixXd& trajectory, const VectorXd &goal)
+    double calc_to_goal_cost(const MatrixXd& trajectory, const VectorXd &goal) const
     {
         double dx, dy, error_angle, cost_angle, cost;
         int rows = trajectory.rows();
@@ -144,6 +146,7 @@ public:
         return cost;
     }
 
+    // calc obstacle cost
     double calc_obstacle_cost(const MatrixXd& trajectory)
     {
 
@@ -172,6 +175,7 @@ public:
         return 1 / min_dis;
     }
 
+    // calculate control input and trajectory
     pair<VectorXd, MatrixXd> calc_control_and_trajectory(
         const VectorXd &x, 
         const VectorXd &dw,
@@ -221,7 +225,7 @@ public:
         return make_pair(best_u, best_trajectory);
     }
 
-
+    // calculate control input
     pair<VectorXd, MatrixXd> dwa_control(const VectorXd &x, const VectorXd &goal)
     {
         VectorXd dw = calc_dynamic_window(x);
@@ -230,10 +234,11 @@ public:
     }
 
 
+    // setup goal marker message
     void setup_goal_msg(
         const VectorXd &goal,
         shared_ptr<visualization_msgs::msg::Marker> &marker,
-        const vector<double> &colors, 
+        const array<double, 3> &colors, 
         double scale
     )
     {
@@ -258,45 +263,48 @@ public:
     }
 
 
+    // setup obstacle marker message
     void setup_obstacle_msg(
         const MatrixXd &obstacles,
         shared_ptr<visualization_msgs::msg::MarkerArray> &ob_marker_arr,
-        const vector<double> &colors, 
+        const array<double, 3> &colors, 
         double scale
     )
     {
-        auto marker = std::make_unique<visualization_msgs::msg::Marker>();
         
         int rows = obstacles.rows();
+        auto timestamp = this->get_clock()->now();
+
         for (int i=0; i<rows; i++)
         {
-            auto timestamp = this->get_clock()->now();
-            marker->header.frame_id = "map";
-            marker->header.stamp = timestamp;
-            marker->ns = "obstacle";
-            marker->id = i;
-            marker->type = visualization_msgs::msg::Marker::CUBE;
-            marker->action = visualization_msgs::msg::Marker::ADD;
-            marker->lifetime = rclcpp::Duration::from_seconds(0);
-            marker->scale.x = scale;
-            marker->scale.y = scale;
-            marker->scale.z = scale;
-            marker->color.a = 1.0;
-            marker->color.r = colors[0];
-            marker->color.g = colors[1];
-            marker->color.b = colors[2];
-            marker->pose.position.x = obstacles(i, 0);
-            marker->pose.position.y = obstacles(i, 1);
-            marker->pose.orientation.z = 0.0;            
+            visualization_msgs::msg::Marker marker;
+            marker.header.frame_id = "map";
+            marker.header.stamp = timestamp;
+            marker.ns = "obstacle";
+            marker.id = i;
+            marker.type = visualization_msgs::msg::Marker::CUBE;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.lifetime = rclcpp::Duration::from_seconds(0);
+            marker.scale.x = scale;
+            marker.scale.y = scale;
+            marker.scale.z = scale;
+            marker.color.a = 1.0;
+            marker.color.r = colors[0];
+            marker.color.g = colors[1];
+            marker.color.b = colors[2];
+            marker.pose.position.x = obstacles(i, 0);
+            marker.pose.position.y = obstacles(i, 1);
+            marker.pose.orientation.z = 0.0;            
 
-            ob_marker_arr->markers.push_back(*marker);
+            ob_marker_arr->markers.emplace_back(std::move(marker));
         }
     }
 
+    // setup robot marker message
     void setup_robot_msg(
         const VectorXd &x,
         shared_ptr<visualization_msgs::msg::Marker> &marker,
-        const vector<double> &colors, 
+        const array<double, 3> &colors,
         double scale
     )    
     {
@@ -320,10 +328,11 @@ public:
         marker->pose.orientation.z = 0.0;              
     }
 
+    // setup trajectory marker message
     void setup_trajectory_msg(
         const MatrixXd &trajectory,
         shared_ptr<visualization_msgs::msg::Marker> &marker,
-        const vector<double> &colors, 
+        const array<double, 3> &colors,
         double scale
     )    
     {
@@ -357,15 +366,16 @@ public:
             color.g = colors[1];
             color.b = colors[2];
 
-            marker->points.push_back(point);
-            marker->colors.push_back(color);
+            marker->points.emplace_back(point);
+            marker->colors.emplace_back(color);
         }        
     }    
 
+    // setup path marker message
     void setup_path_msg(
         const vector<pair<double, double>> &saved_path, 
         shared_ptr<visualization_msgs::msg::Marker> &marker,
-        const vector<double> &colors, 
+        const array<double, 3> &colors,
         double scale        
     )
     {
@@ -396,12 +406,12 @@ public:
         color.g = colors[1];
         color.b = colors[2];
 
-        marker->points.push_back(point);
-        marker->colors.push_back(color);
+        marker->points.emplace_back(point);
+        marker->colors.emplace_back(color);
     }
 
-    // main run
-    void run()
+    // main execution
+    void run() 
     {
         rclcpp::Rate rate(100);
         
@@ -458,8 +468,8 @@ int main(int argc, char** argv)
 {   
     rclcpp::init(argc, argv);
 
-    int num_obstacles = 15;
-    vector<vector<double>> obstacles_data = {
+    // obstacles data
+    vector<Eigen::Vector2d> obstacles_data = {
         {-1, -1},
         {0, 2},
         {4.0, 2.0},
@@ -476,25 +486,25 @@ int main(int argc, char** argv)
         {15.0, 15.0},
         {13.0, 13.0}
     };
-
     MatrixXd obstacles(obstacles_data.size(), 2);
-    
-    for (int i=0; i<num_obstacles; i++)
+    for (size_t i = 0; i < obstacles_data.size(); i++)
     {
-        obstacles.row(i) << obstacles_data[i][0],  obstacles_data[i][1];
+        obstacles.row(i) = obstacles_data[i];
     }
 
+    // initial state
     VectorXd x(5);
     x << 0.0, 0.0, double(3.14 / 8.0), 0.0, 0.0;
-
+    
+    // goal state
     double gx = 10.0, gy = 10.0;
     VectorXd goal(2);
     goal << gx, gy;
-
+    
+    // run dwa
     auto RobotDW_node = make_shared<DWA>(obstacles, x, goal);
     RobotDW_node->run();
 
     rclcpp::shutdown();
-
     return 0;
 }
