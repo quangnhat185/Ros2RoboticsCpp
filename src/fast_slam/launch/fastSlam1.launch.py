@@ -14,7 +14,6 @@ def generate_launch_description():
         arguments=['-d', rviz_config_dir],
     )
 
-
     fast_slam_node = Node(
         package='fast_slam',
         executable='fast_slam_run',

@@ -11,23 +11,44 @@
 using namespace Eigen;
 using namespace std;
 
+static constexpr double pi = M_PI;
 
-double deg2rad(double deg_angle);
+// convert degree to radian
+constexpr double deg2rad(double deg_angle)
+{
+    double res = deg_angle * pi / 180;
+    return res;
+}
 
-const double pi = atan(1) * 4;  
-const Matrix2d Q = (Matrix2d() << pow(3.0, 2), 0.0, 0.0, pow(deg2rad(10.0),2)).finished();
-const Matrix2d R = (Matrix2d() << 1.0, 0.0, 0.0, pow(deg2rad(20.0), 2)).finished();
-const Matrix2d Q_sim = (Matrix2d() << 0.09, 0.0, 0.0, pow(deg2rad(2.0), 2)).finished();
-const Matrix2d R_sim = (Matrix2d() << 0.25, 0.0, 0.0, pow(deg2rad(10.0), 2)).finished();
-const double OFFSET_YAW_RATE_NOISE = 0.01;
+// normalize angle to [-pi, pi]
+constexpr double pi_2_pi(double angle)
+{   
+    double mod_angle = fmod((abs(angle) + pi), (2 * pi)) - pi;
 
-const double DT = 0.1;
-const double MAX_RANGE = 20.0;
-const double M_DIST_TH = 2.0;
-const int STATE_SIZE = 3;
-const int LM_SIZE = 2;
-const int N_PARTICLE = 100;
-const double NTH = N_PARTICLE / 1.5;
+    if (angle >= 0) return mod_angle;
+    else return -mod_angle;
+}
+    
+// parameters
+constexpr double deg2rad(double deg_angle);
+constexpr double rad10 = deg2rad(10.0);
+constexpr double rad20 = deg2rad(20.0);
+constexpr double rad2 = deg2rad(2.0);
+
+const auto Q = (Matrix2d() << pow(3.0, 2), 0.0, 0.0, pow(rad10,2)).finished();
+const auto R = (Matrix2d() << 1.0, 0.0, 0.0, pow(rad20, 2)).finished();
+const auto Q_sim = (Matrix2d() << 0.09, 0.0, 0.0, pow(rad2, 2)).finished();
+const auto R_sim = (Matrix2d() << 0.25, 0.0, 0.0, pow(rad10, 2)).finished();
+
+constexpr double OFFSET_YAW_RATE_NOISE = 0.01;
+
+constexpr double DT = 0.1;
+constexpr double MAX_RANGE = 20.0;
+constexpr double M_DIST_TH = 2.0;
+constexpr int STATE_SIZE = 3;
+constexpr int LM_SIZE = 2;
+constexpr int N_PARTICLE = 100;
+constexpr double NTH = N_PARTICLE / 1.5;
 
 struct JacobMatrices
 {
@@ -57,27 +78,10 @@ public:
 
         // landmark position covariance
         lmP = MatrixXd::Zero(n_landmark * LM_SIZE, LM_SIZE);
-
     }
 };
 
-double deg2rad(double deg_angle)
-{
-    double res = deg_angle * pi / 180;
-    return res;
-}
-
-double pi_2_pi(double angle)
-{   
-    double mod_angle = fmod((abs(angle) + pi), (2 * pi)) - pi;
-
-    if (angle >= 0) return mod_angle;
-    else return -mod_angle;
-}
-
-
 class FastSLAM : public rclcpp::Node{
-
 private:
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr landmark_gt_pub;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr robotPose_gt_pub;
@@ -87,15 +91,16 @@ private:
 
 public:
     // rgb color vector
-    vector<double> black = {0, 0, 0};
-    vector<double> green = {0, 1, 0};
-    vector<double> blue = {0, 0, 1};
-    vector<double> red = {1, 0, 0};
-    vector<double> yellow = {1, 1, 0};
+    static constexpr array<double, 3> black = {0, 0, 0};
+    static constexpr array<double, 3> green = {0, 1, 0};
+    static constexpr array<double, 3> blue = {0, 0, 1};
+    static constexpr array<double, 3> red = {1, 0, 0};
+    static constexpr array<double, 3> yellow = {1, 1, 0};
 
     MatrixXd RFID;
     std::random_device rd;
 
+    // constructor
     FastSLAM(MatrixXd RFID) : Node("fastSlam_node"), RFID(RFID)
     {
         // cout << RFID << endl;
@@ -104,11 +109,10 @@ public:
         robotPose_est_pub = this->create_publisher<visualization_msgs::msg::Marker>("robot_est_pose", 10);
         robotPose_dr_pub = this->create_publisher<visualization_msgs::msg::Marker>("robot_dr_pose", 10);
         particle_pub = this->create_publisher<visualization_msgs::msg::Marker>("particle_pose", 10);
-
-
         
     };
 
+    // calculate input state
     MatrixXd calc_input(double time)
     {   
         double v;
@@ -131,6 +135,7 @@ public:
         return u;
     }
 
+    // define motion model
     MatrixXd motion_model(MatrixXd x, MatrixXd &u)
     {
         MatrixXd F = MatrixXd::Identity(3, 3);
@@ -147,6 +152,7 @@ public:
         return x;
     }
 
+    // define observation model
     MatrixXd observation(MatrixXd &xTrue, MatrixXd &xd, MatrixXd &u)
     {
         std::mt19937 gen(rd());
@@ -197,6 +203,7 @@ public:
         return z;
     }
 
+    // update particles
     void predict_particles(vector<Particle> &particles, MatrixXd &u)
     {
         std::mt19937 gen(rd());
@@ -223,6 +230,7 @@ public:
 
     }
 
+    // add new landmark to particle when it is observed for the first time
     void add_new_landmark(Particle &particle, Vector3d &zi, const Matrix2d &Q_cov)
     {
         double r = zi(0);
@@ -250,10 +258,9 @@ public:
         // cout << particle.lmP << endl;
     }
 
+    // compute jacobians matrix
     JacobMatrices compute_jacobians(Particle &particle, Vector2d &xf, MatrixXd &Pf, const MatrixXd &Q_cov)
     {
-        // double dx = 
-
         JacobMatrices ans;
         double dx = xf(0) - particle.x; 
         double dy = xf(1) - particle.y;
@@ -278,6 +285,7 @@ public:
         return ans;
     }
 
+    // compute weight of particle
     double compute_weight(Particle &particle, Vector3d &zi, const MatrixXd &Q_cov)
     {
         int lm_id = int(zi(2));
@@ -304,6 +312,7 @@ public:
         return w;
     }
 
+    // update particle with cholesky factorization
     CholeskyMatrices update_kf_with_cholesky(Vector2d &xf, MatrixXd &Pf, MatrixXd &v, const MatrixXd &Q_cov, MatrixXd Hf)
     {
         CholeskyMatrices ans;
@@ -325,6 +334,7 @@ public:
 
     }
 
+    // update landmark
     void update_landmark(Particle &particle, Vector3d &zi, const MatrixXd &Q_cov)
     {
         int lm_id = int(zi(2));
@@ -346,6 +356,7 @@ public:
 
     }
 
+    // update particle with observation
     void update_with_observation(vector<Particle> &particles, MatrixXd &z)
     {
         for (int iz = 0; iz < z.cols(); iz++)
@@ -373,6 +384,7 @@ public:
         }
     }
 
+    // normalize weight of particles
     void normalize_weight(vector<Particle> &particles) {
     
         double sum_w = std::accumulate(particles.begin(), particles.end(), 0.0, [](double sum, const Particle& p) {return sum + p.w;});
@@ -392,6 +404,7 @@ public:
 
     }
 
+    // low variance re-sampling
     void resampling(vector<Particle>& particles)
     {
         // low variance re-sampling
@@ -447,6 +460,7 @@ public:
         }
     }
 
+    // calculate final state
     MatrixXd calc_final_state(vector<Particle> particles)
     {
         MatrixXd xEst_final = MatrixXd::Zero(STATE_SIZE, 1); 
@@ -466,7 +480,7 @@ public:
 
     }
 
-
+    // fast slam 1 algorithm
     void fast_slam1(vector<Particle> &particles, MatrixXd &u, MatrixXd &z)
     {
         predict_particles(particles, u);
@@ -474,11 +488,11 @@ public:
         resampling(particles);
     }
 
-
+    // setup landmark marker
     void setup_landmark_marker(
             MatrixXd& RFID,
             shared_ptr<visualization_msgs::msg::Marker> landmark_gt_marker,
-            const vector<double>& color,
+            const array<double, 3> &color,
             double scale
     )
     {
@@ -505,12 +519,14 @@ public:
             p.z = 0;
             landmark_gt_marker->points.push_back(p);
         }
+
     }
 
+    // setup trajectory marker
     void setup_trajectory_marker(
         vector<MatrixXd> &trajectory,
         shared_ptr<visualization_msgs::msg::Marker> trajectory_marker,
-        const vector<double>& color,
+        const array<double, 3> &color,
         double scale,
         string node_name
     )
@@ -541,10 +557,11 @@ public:
         }
     }
 
+    // setup particle marker
     void setup_particle_marker(
         vector<Particle> &particles,
         shared_ptr<visualization_msgs::msg::Marker> particle_marker,
-        const vector<double>& color,
+        const array<double, 3> &color,
         double scale
     )
     {
@@ -578,7 +595,7 @@ public:
 
     }
 
-
+    // main loop
     void run()
     {   
         rclcpp::Rate rate(100);
@@ -645,10 +662,10 @@ public:
             robotPose_dr_pub->publish(std::move(*xDR_trajectory_marker));
             particle_pub->publish(std::move(*particle_pose_marker));
 
+            // clear particles marker for up-to-date visualization
             particle_pose_marker->points.clear();
 
             rate.sleep();
-
         }
     }
 
@@ -659,6 +676,7 @@ int main(int argc, char** argv)
 {   
     rclcpp::init(argc, argv);
 
+    // define obstacle positions
     MatrixXd RFID(8, 2);
     RFID << 10.0, -2.0,
             15.0, 10.0,
@@ -671,7 +689,6 @@ int main(int argc, char** argv)
 
     FastSLAM solver = FastSLAM(RFID);
     solver.run();
-
 
     rclcpp::shutdown();
     return 0;   
