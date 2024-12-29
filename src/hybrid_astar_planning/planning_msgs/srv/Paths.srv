@@ -1,0 +1,11 @@
+float32 start_x
+float32 start_y
+float32 start_yaw
+float32 goal_x
+float32 goal_y
+float32 goal_yaw
+float32 max_curvature
+float32 step_size
+---
+bool success
+Path[] paths

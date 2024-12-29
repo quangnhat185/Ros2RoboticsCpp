@@ -1,19 +1,19 @@
+#include <cmath>
+#include <eigen3/Eigen/Dense>
 #include <functional>
 #include <memory>
-#include <string>
-#include <cmath>
-#include "rclcpp/rclcpp.hpp"
-#include <eigen3/Eigen/Dense>
 #include <random>
-#include "visualization_msgs/msg/marker_array.hpp"
+#include <string>
+
+#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 using namespace Eigen;
 
 class ParticleFilterPublisher : public rclcpp::Node
 {
-private:
-
+  private:
     double pi = atan(1) * 4;
     // time interval
     float DT;
@@ -22,18 +22,17 @@ private:
     float MAX_RANGE;
 
     // Estimation parameter of PF
-    MatrixXd Q; // range error
-    MatrixXd R; // input error
-
+    MatrixXd Q;  // range error
+    MatrixXd R;  // input error
 
     // PF parameter
     int NP = 100;
     double Nth = 50.0;
 
-    MatrixXd px; // particle states
-    MatrixXd pw; // particle weights
+    MatrixXd px;  // particle states
+    MatrixXd pw;  // particle weights
 
-    // Lardmark locations identifed by 
+    // Lardmark locations identifed by
     // Radio Frequency
     MatrixXd rf_id;
 
@@ -42,20 +41,19 @@ private:
 
     // intialize particle pose publisher
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr particle_publisher;
-     
-public:
+
+  public:
     // input
     MatrixXd u;
-    
-    ParticleFilterPublisher(float &dt, float &max_range, int &num_par, MatrixXd &rf_id, MatrixXd u) :
-        Node("pf_publisher"),
-        DT(dt), 
-        MAX_RANGE(max_range),
-        NP(num_par),
-        rf_id(rf_id),
-        u(u)
-    {
 
+    ParticleFilterPublisher(float& dt, float& max_range, int& num_par, MatrixXd& rf_id, MatrixXd u)
+      : Node("pf_publisher")
+      , DT(dt)
+      , MAX_RANGE(max_range)
+      , NP(num_par)
+      , rf_id(rf_id)
+      , u(u)
+    {
         publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("robot_localizing_pose", 10);
         particle_publisher = this->create_publisher<visualization_msgs::msg::MarkerArray>("particle_pose", 10);
 
@@ -65,11 +63,10 @@ public:
         px = MatrixXd::Zero(4, NP);
         pw = MatrixXd::Zero(1, NP);
         pw.fill(1.0 / NP);
-
     }
 
     void Q_init()
-    {   
+    {
         Q = MatrixXd(1, 1);
         Q.diagonal() << pow(0.2, 2);
     }
@@ -80,22 +77,16 @@ public:
         R.diagonal() << pow(1.0, 2), pow(40.0 / 180 * pi, 2);
     }
 
-    MatrixXd motion_model(MatrixXd &x, MatrixXd &u)
+    MatrixXd motion_model(MatrixXd& x, MatrixXd& u)
     {
-        
         MatrixXd F = MatrixXd::Zero(4, 4);
         F.diagonal() << 1.0, 1.0, 1.0, 0.0;
 
         MatrixXd B = MatrixXd::Zero(4, 2);
-        B << 
-            DT * std::cos(x(2, 0)), 0.0,
-            DT * std::sin(x(2, 0)), 0.0,
-            0.0, DT,
-            1.0, 0.0;
+        B << DT * std::cos(x(2, 0)), 0.0, DT * std::sin(x(2, 0)), 0.0, 0.0, DT, 1.0, 0.0;
 
         x = F * x + B * u;
         return x;
-
     }
 
     double gauss_likelihood(float input, float sigma)
@@ -106,7 +97,7 @@ public:
         return norminator / denorminator;
     }
 
-    std::vector<MatrixXd> observation(MatrixXd &xTrue, MatrixXd &xDr, MatrixXd &u, MatrixXd &rf_id)
+    std::vector<MatrixXd> observation(MatrixXd& xTrue, MatrixXd& xDr, MatrixXd& u, MatrixXd& rf_id)
     {
         xTrue = motion_model(xTrue, u);
 
@@ -115,15 +106,15 @@ public:
         std::vector<double> dx_vec;
         std::vector<double> dy_vec;
 
-        for (int i = 0; i < rf_id.rows(); i++){
-            
+        for (int i = 0; i < rf_id.rows(); i++)
+        {
             auto dx = xTrue(0, 0) - rf_id(i, 0);
             auto dy = xTrue(1, 0) - rf_id(i, 1);
             auto d = sqrt(pow(dx, 2) + pow(dy, 2));
 
             if (d <= MAX_RANGE)
             {
-                double dnoise = d + VectorXd::Random(1)(0) * pow(Q.value(), 0.5); 
+                double dnoise = d + VectorXd::Random(1)(0) * pow(Q.value(), 0.5);
                 dnoise_vec.push_back(dnoise);
                 dx_vec.push_back(rf_id(i, 0));
                 dy_vec.push_back(rf_id(i, 1));
@@ -131,7 +122,8 @@ public:
         }
 
         MatrixXd z(dnoise_vec.size(), 3);
-        for (size_t i = 0; i < dnoise_vec.size(); i++){
+        for (size_t i = 0; i < dnoise_vec.size(); i++)
+        {
             z(i, 0) = dnoise_vec[i];
             z(i, 1) = dx_vec[i];
             z(i, 2) = dy_vec[i];
@@ -140,18 +132,17 @@ public:
         // // add noise to input
 
         MatrixXd ud(2, 1);
-        ud <<
-            u(0, 0) + VectorXd::Random(1)(0) * pow(R(0, 0), 0.5),
+        ud << u(0, 0) + VectorXd::Random(1)(0) * pow(R(0, 0), 0.5),
             u(1, 0) + VectorXd::Random(1)(0) * pow(R(1, 1), 0.5);
 
         xDr = motion_model(xDr, ud);
 
-        return std::vector<MatrixXd>{xTrue, z, xDr, ud};
+        return std::vector<MatrixXd>{ xTrue, z, xDr, ud };
     }
 
     // MatrixXd calc_covariance(MatrixXd &xEst, MatrixXd &px, MatrixXd &pw){
     //     MatrixXd cov = MatrixXd::Zero(3, 3);
-        
+
     //     int n_particle = px.cols();
 
     //     for (int i = 0 ; i < n_particle; i++)
@@ -170,9 +161,21 @@ public:
     // }
 
     // low variance re-rsampling
-    std::vector<MatrixXd> re_sampling(MatrixXd &px, MatrixXd &pw)
-    {
 
+    MatrixXd resampling_by_indexes(const MatrixXd& px, const std::vector<int>& indexes, const int& NP)
+    {
+        MatrixXd new_px(px.rows(), NP);
+
+        for (int i = 0; i < NP; i++)
+        {
+            new_px(i) = px(indexes[i]);
+        }
+
+        return new_px;
+    }
+
+    std::vector<MatrixXd> re_sampling(MatrixXd& px, MatrixXd& pw)
+    {
         int num_particle = pw.cols();
         MatrixXd w_cum = MatrixXd::Zero(num_particle, 1);
 
@@ -184,8 +187,8 @@ public:
 
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<double> dis(0.0, 1.0/NP);
-        
+        std::uniform_real_distribution<double> dis(0.0, 1.0 / NP);
+
         VectorXd base(NP);
         VectorXd re_sample_id(NP);
 
@@ -199,29 +202,30 @@ public:
         std::vector<int> indexes;
         for (int ip = 0; ip < NP; ip++)
         {
-            while (re_sample_id(ip) > w_cum(ind, 0) && ind < NP - 1) ind++;
+            while (re_sample_id(ip) > w_cum(ind, 0) && ind < NP - 1)
+                ind++;
             indexes.push_back(ind);
         }
 
-        px = px(Eigen::all, indexes); // resampling by new indexes
-        pw.fill(1.0 / NP); // init new weights
+        MatrixXd new_px(px.rows(), NP);
+        px = resampling_by_indexes(px, indexes, NP);  // resampling by new indexes
+        pw.fill(1.0 / NP);                            // init new weights
 
-        return std::vector<MatrixXd>{px, pw};
+        return std::vector<MatrixXd>{ px, pw };
     }
 
-
-    std::vector<MatrixXd> pf_localization(MatrixXd& px, MatrixXd &pw, MatrixXd &z, MatrixXd &u)
+    std::vector<MatrixXd> pf_localization(MatrixXd& px, MatrixXd& pw, MatrixXd& z, MatrixXd& u)
     {
         for (int i = 0; i < NP; i++)
         {
-            MatrixXd x = px(Eigen::all, i);
+            // MatrixXd x = px(Eigen::all, i);
+            MatrixXd x = px.block(0, i, px.rows(), 1);
             double w = pw(0, i);
 
             MatrixXd ud(2, 1);
 
             // predict with noised input
-            ud <<
-                u(0, 0) + VectorXd::Random(1)(0) * pow(R(0, 0), 0.5),
+            ud << u(0, 0) + VectorXd::Random(1)(0) * pow(R(0, 0), 0.5),
                 u(1, 0) + VectorXd::Random(1)(0) * pow(R(1, 1), 0.5);
             x = motion_model(x, ud);
 
@@ -232,44 +236,41 @@ public:
                 double dy = x(1, 0) - z(j, 2);
                 double pre_z = sqrt(pow(dx, 2) + pow(dy, 2));
                 double dz = pre_z - z(j, 0);
-                w = w * gauss_likelihood(dz, pow(Q(0, 0), 0.5));        
+                w = w * gauss_likelihood(dz, pow(Q(0, 0), 0.5));
             }
 
             // update state particles after applying motion
-            px(Eigen::all, i) = x(Eigen::all, 0);
+            // px(Eigen::all, i) = x(Eigen::all, 0);
+            px.block(0, i, px.rows(), 1) = x.block(0, 0, x.rows(), 1);
 
             // update weight particles after reweighted
             // with observation
             pw(0, i) = w;
         }
 
-        pw = pw / pw.sum(); // normalize    
+        pw = pw / pw.sum();  // normalize
 
         MatrixXd xEst = px * pw.transpose();
         // MatrixXd PEst = calc_covariance(xEst, px, pw);
 
         double N_eff = 1.0 / (pw * pw.transpose()).value();
-        if (N_eff < Nth) 
+        if (N_eff < Nth)
         {
             auto p_vec = re_sampling(px, pw);
             MatrixXd px = p_vec[0];
-            MatrixXd py = p_vec[1]; 
-        }   
+            MatrixXd py = p_vec[1];
+        }
 
-        return {xEst, px, pw};
+        return { xEst, px, pw };
     }
-    
+
     // publish poses of given landmarks
-    void setup_rfid_msg(
-        std::unique_ptr<visualization_msgs::msg::MarkerArray> &pose_msg_arr,
-        MatrixXd &rfid, 
-        float scale,
-        int id)
+    void setup_rfid_msg(std::unique_ptr<visualization_msgs::msg::MarkerArray>& pose_msg_arr, MatrixXd& rfid,
+                        float scale, int id)
     {
-        
         int num_obtacles = rfid.rows();
         for (int i = 0; i < num_obtacles; i++)
-        {   
+        {
             auto markerposerRfid = std::make_unique<visualization_msgs::msg::Marker>();
             auto timestamp = this->get_clock()->now();
             markerposerRfid->header.frame_id = "map";
@@ -288,24 +289,21 @@ public:
             markerposerRfid->color.b = 0;
             markerposerRfid->pose.position.x = rf_id(i, 0);
             markerposerRfid->pose.position.y = rf_id(i, 1);
-            markerposerRfid->pose.orientation.z = 0.0;        
+            markerposerRfid->pose.orientation.z = 0.0;
 
             pose_msg_arr->markers.push_back(*markerposerRfid);
         }
     }
 
     // publish poses of particles per iteration
-    void setup_paricles_msg(
-        std::unique_ptr<visualization_msgs::msg::MarkerArray> &pose_particle_arr,
-        MatrixXd &px, 
-        float scale)
+    void setup_paricles_msg(std::unique_ptr<visualization_msgs::msg::MarkerArray>& pose_particle_arr, MatrixXd& px,
+                            float scale)
     {
-        
         auto markerposeParticles = std::make_unique<visualization_msgs::msg::Marker>();
         int num_particles = px.cols();
 
         for (int i = 0; i < num_particles; i++)
-        {           
+        {
             auto timestamp = this->get_clock()->now();
             markerposeParticles->header.frame_id = "map";
             markerposeParticles->header.stamp = timestamp;
@@ -322,14 +320,14 @@ public:
             markerposeParticles->color.b = 0;
             markerposeParticles->pose.position.x = px(0, i);
             markerposeParticles->pose.position.y = px(1, i);
-            markerposeParticles->pose.orientation.z = 0.0;        
+            markerposeParticles->pose.orientation.z = 0.0;
 
             pose_particle_arr->markers.push_back(*markerposeParticles);
         }
-    }    
+    }
 
     void run()
-    {   
+    {
         MatrixXd xEst = MatrixXd::Zero(4, 1);
         MatrixXd xTrue = MatrixXd::Zero(4, 1);
 
@@ -337,10 +335,10 @@ public:
 
         // MatrixXd z, ud, PEst;
         MatrixXd z, ud;
-        
+
         rclcpp::Rate rate(50);
 
-        //publish marker msg for visualization with Rviz
+        // publish marker msg for visualization with Rviz
         auto pose_msg_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
         int counter = 0;
@@ -349,7 +347,7 @@ public:
         float scale = 0.5;
 
         while (rclcpp::ok())
-        {   
+        {
             auto pose_particle_arr = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
             auto markerposeTrue = std::make_unique<visualization_msgs::msg::Marker>();
@@ -388,7 +386,7 @@ public:
             markerposeDr->header.frame_id = "map";
             markerposeDr->header.stamp = timestamp;
             markerposeDr->ns = "poseDr";
-            markerposeDr->id = counter;                
+            markerposeDr->id = counter;
             markerposeDr->type = visualization_msgs::msg::Marker::SPHERE;
             markerposeDr->action = visualization_msgs::msg::Marker::ADD;
             markerposeDr->lifetime = rclcpp::Duration::from_seconds(0);
@@ -401,7 +399,7 @@ public:
             markerposeDr->color.b = 0;
             markerposeDr->pose.position.x = xDr(0, 0);
             markerposeDr->pose.position.y = xDr(1, 0);
-            markerposeDr->pose.orientation.z = xDr(2, 0);                 
+            markerposeDr->pose.orientation.z = xDr(2, 0);
 
             auto pf_localization_vec = pf_localization(px, pw, z, ud);
             xEst = pf_localization_vec[0];
@@ -411,7 +409,7 @@ public:
             markerposeEst->header.frame_id = "map";
             markerposeEst->header.stamp = timestamp;
             markerposeEst->ns = "poseEst";
-            markerposeEst->id = counter;                
+            markerposeEst->id = counter;
             markerposeEst->type = visualization_msgs::msg::Marker::SPHERE;
             markerposeEst->action = visualization_msgs::msg::Marker::ADD;
             markerposeEst->lifetime = rclcpp::Duration::from_seconds(0);
@@ -424,7 +422,7 @@ public:
             markerposeEst->color.b = 0;
             markerposeEst->pose.position.x = xEst(0, 0);
             markerposeEst->pose.position.y = xEst(1, 0);
-            markerposeEst->pose.orientation.z = xEst(2, 0);               
+            markerposeEst->pose.orientation.z = xEst(2, 0);
 
             pose_msg_arr->markers.push_back(*markerposeTrue);
             pose_msg_arr->markers.push_back(*markerposeEst);
@@ -437,7 +435,6 @@ public:
             counter++;
             rate.sleep();
         }
-
     }
 };
 
@@ -449,11 +446,7 @@ int main(int argc, char** argv)
     int num_par = 200;
 
     MatrixXd rf_id(4, 2);
-    rf_id << 
-            10.0, 0.0,
-            15.0, 10.0,
-            0.0, 15.0,
-            -5.0, 25.0;
+    rf_id << 10.0, 0.0, 15.0, 10.0, 0.0, 15.0, -5.0, 25.0;
 
     MatrixXd u(2, 1);
     double trans_vel = 1.0;
