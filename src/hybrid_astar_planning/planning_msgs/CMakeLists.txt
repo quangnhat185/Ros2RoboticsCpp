@@ -14,8 +14,6 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Paths.srv"
-  "msg/Path.msg"
-
 )
 
 if(BUILD_TESTING)

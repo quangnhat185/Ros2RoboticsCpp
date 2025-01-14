@@ -10,7 +10,7 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.angle import angle_mod
+from hybrid_astar_planning_srv.utils.angle import angle_mod
 
 show_animation = True
 

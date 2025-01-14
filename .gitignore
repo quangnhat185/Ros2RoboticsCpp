@@ -6,3 +6,5 @@ build/
 src/pub_cpp/
 src/py_plotting/
 temp_dev/old
+*.pyc
+temp_dev/hybrid_astar_model

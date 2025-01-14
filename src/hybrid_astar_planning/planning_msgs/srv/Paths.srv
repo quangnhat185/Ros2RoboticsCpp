@@ -1,11 +1,9 @@
-float32 start_x
-float32 start_y
-float32 start_yaw
-float32 goal_x
-float32 goal_y
-float32 goal_yaw
-float32 max_curvature
-float32 step_size
+float32[] start
+float32[] goal
+float32[] ox
+float32[] oy
 ---
 bool success
-Path[] paths
+float32[] x_list
+float32[] y_list
+float32[] yaw_list

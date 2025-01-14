@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
-
-package_name = 'reeds_shepp_planning'
+from glob import glob
+package_name = 'hybrid_astar_planning_srv'
 
 setup(
     name=package_name,
@@ -10,6 +10,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/config', glob('config/*.yml')),
+        ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
+        ('share/' + package_name + '/rviz', glob('rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,8 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'reeds_shepp_client = reeds_shepp_planning.reeds_shepp_client_node:main',
-            'reeds_shepp_service = reeds_shepp_planning.reeds_shepp_service_node:main',
+            'planning_server_node = hybrid_astar_planning_srv.planning_server_node:main',
         ],
     },
 )

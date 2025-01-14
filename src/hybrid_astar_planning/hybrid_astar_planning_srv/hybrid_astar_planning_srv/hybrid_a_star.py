@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import cKDTree
 
-from dynamic_programming_heuristic import calc_distance_heuristic
-from ReedsSheppPath import reeds_shepp_path_planning as rs
-from car import move, check_car_collision, MAX_STEER, WB, plot_car, BUBBLE_R
+from .dynamic_programming_heuristic import calc_distance_heuristic
+from .ReedsSheppPath import reeds_shepp_path_planning as rs
+from .car import move, check_car_collision, MAX_STEER, WB, plot_car, BUBBLE_R
 
 XY_GRID_RESOLUTION = 2.0  # [m]
 YAW_GRID_RESOLUTION = np.deg2rad(15.0)  # [rad]
@@ -241,7 +241,7 @@ def calc_rs_path_cost(reed_shepp_path):
     return cost
 
 
-def hybrid_a_star_planning(start, goal, ox, oy, xy_resolution, yaw_resolution):
+def hybrid_a_star_planning(start, goal, ox, oy, xy_resolution, yaw_resolution, show_animation=False):
     """
     start: start node
     goal: goal node
@@ -304,7 +304,7 @@ def hybrid_a_star_planning(start, goal, ox, oy, xy_resolution, yaw_resolution):
             current, goal_node, config, ox, oy, obstacle_kd_tree)
 
         if is_updated:
-            print("path found")
+            print("Path found...")
             break
 
         for neighbor in get_neighbors(current, config, ox, oy,
@@ -405,9 +405,6 @@ def main():
     # Set Initial parameters
     start = [10.0, 10.0, np.deg2rad(90.0)]
     goal = [50.0, 50.0, np.deg2rad(-90.0)]
-
-    print("start : ", start)
-    print("goal : ", goal)
 
     if show_animation:
         plt.plot(ox, oy, ".k")
