@@ -6,6 +6,8 @@
 #include <iostream>
 #include <rclcpp/rclcpp.hpp>
 #include <vector>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include "hybrid_astar_model/hybrid_astar_model.hpp"
 #include "planning_msgs/srv/paths.hpp"
@@ -13,6 +15,9 @@
 using namespace std;
 using namespace hybrid_astar_model;
 using namespace std::chrono_literals;
+
+// TODO: Add Goal marker
+// TODO: Add trajectory
 
 class HAstarRunner : public rclcpp::Node
 {
@@ -24,6 +29,7 @@ class HAstarRunner : public rclcpp::Node
       , ox(ox)
       , oy(oy)
     {
+        obst_client_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("obstacle", 10);
         client_ = this->create_client<planning_msgs::srv::Paths>("hybrid_astar_planning_server");
         tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
@@ -38,6 +44,44 @@ class HAstarRunner : public rclcpp::Node
         }
     }
 
+    void publish_obstacles()
+    {
+        visualization_msgs::msg::MarkerArray obst_marker_array;
+        int size_obst = ox.size();
+
+        for (int i = 0; i < size_obst; i++)
+        {
+            visualization_msgs::msg::Marker obst_marker;
+            obst_marker.header.frame_id = "world";
+            obst_marker.header.stamp = this->get_clock()->now();
+            obst_marker.ns = "obstacles";
+            obst_marker.id = i;
+            obst_marker.type = visualization_msgs::msg::Marker::CUBE;
+            obst_marker.action = visualization_msgs::msg::Marker::ADD;
+
+            obst_marker.pose.position.x = ox[i];
+            obst_marker.pose.position.y = oy[i];
+            obst_marker.pose.position.z = 0.0;
+
+            obst_marker.pose.orientation.x = 0.0;
+            obst_marker.pose.orientation.y = 0.0;
+            obst_marker.pose.orientation.z = 0.0;
+            obst_marker.pose.orientation.w = 1.0;
+
+            obst_marker.scale.x = 1.0;
+            obst_marker.scale.y = 1.0;
+            obst_marker.scale.z = 1.0;
+
+            obst_marker.color.a = 1.0;
+            obst_marker.color.r = 1.0;
+            obst_marker.color.g = 0.0;
+            obst_marker.color.b = 0.0;
+            obst_marker_array.markers.push_back(obst_marker);
+        }
+
+        obst_client_->publish(obst_marker_array);
+    }
+
     void run(std::shared_ptr<planning_msgs::srv::Paths_Response> paths)
     {
         int num_items = paths->x_list.size();
@@ -46,9 +90,10 @@ class HAstarRunner : public rclcpp::Node
         transform_stamped.child_frame_id = "base_link";
 
         // Set publish rate
-        rclcpp::Rate rate(5);
+        rclcpp::Rate rate(PUB_RATE);
 
         int i = 0;
+
         while (rclcpp::ok() && i < num_items)
         {
             transform_stamped.header.stamp = this->get_clock()->now();
@@ -60,7 +105,7 @@ class HAstarRunner : public rclcpp::Node
 
             double roll = 0.0;
             double pitch = 0.0;
-            double yaw = paths->yaw_list[i];
+            double yaw = paths->yaw_list[i] - PI / 2;
 
             tf2::Quaternion quaternion;
             quaternion.setRPY(roll, pitch, yaw);
@@ -74,6 +119,7 @@ class HAstarRunner : public rclcpp::Node
             RCLCPP_INFO(this->get_logger(), "Publishing transform...");
             i++;
 
+            publish_obstacles();
             rate.sleep();  // Sleep to maintain the publish rate
         }
 
@@ -105,6 +151,7 @@ class HAstarRunner : public rclcpp::Node
 
   private:
     rclcpp::Client<planning_msgs::srv::Paths>::SharedPtr client_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obst_client_;
     std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
     // rclcpp::TimerBase::SharedPtr timer_;
     vector<float> start;

@@ -20,6 +20,7 @@ constexpr double BACK_COST = 5.0;          // backward penalty cost
 constexpr double STEER_CHANGE_COST = 5.0;  // steer angle change penalty cost
 constexpr double STEER_COST = 1.0;         // steer angle change penalty cost
 constexpr double H_COST = 5.0;             // Heuristic cost
+constexpr double PUB_RATE = 100;
 
 }  // namespace hybrid_astar_model
 #endif
