@@ -6,107 +6,84 @@ author: Zheng Zh (@Zhengzh)
 
 """
 
-import sys
 import pathlib
+import sys
+
 root_dir = pathlib.Path(__file__).parent.parent.parent
 sys.path.append(str(root_dir))
 
-from math import cos, sin, tan, pi
+from math import cos, pi, sin, tan
 
-import matplotlib.pyplot as plt
 import numpy as np
+from rclpy.node import Node
 
 from .utils.angle import rot_mat_2d
 
-WB = 3.0  # rear to front wheel
-W = 2.0  # width of car
-LF = 3.3  # distance from rear to vehicle front end
-LB = 1.0  # distance from rear to vehicle back end
-MAX_STEER = 0.6  # [rad] maximum steering angle
 
-BUBBLE_DIST = (LF - LB) / 2.0  # distance from rear to center of vehicle.
-BUBBLE_R = np.hypot((LF + LB) / 2.0, W / 2.0)  # bubble radius
+class Car:
+    def __init__(self, node: Node):
+        self.WB = node.get_parameter("WB").value
+        self.W = node.get_parameter("W").value
+        self.LF = node.get_parameter("LF").value
+        self.LB = node.get_parameter("LB").value
+        self.MAX_STEER = node.get_parameter("MAX_STEER").value
+        self.N_STEER = node.get_parameter("N_STEER").value
+        self.SB_COST = node.get_parameter("SB_COST").value
+        self.BACK_COST = node.get_parameter("BACK_COST").value
+        self.STEER_CHANGE_COST = node.get_parameter("STEER_CHANGE_COST").value
+        self.STEER_COST = node.get_parameter("STEER_COST").value
+        self.H_COST = node.get_parameter("H_COST").value
+        self.MOTION_RESOLUTION = node.get_parameter("MOTION_RESOLUTION").value
 
-# vehicle rectangle vertices
-VRX = [LF, LF, -LB, -LB, LF]
-VRY = [W / 2, -W / 2, -W / 2, W / 2, W / 2]
+        self.BUBBLE_DIST = (
+            self.LF - self.LB
+        ) / 2.0  # distance from rear to center of vehicle.
+        self.BUBBLE_R = np.hypot(
+            (self.LF + self.LB) / 2.0, self.W / 2.0
+        )  # bubble radius
 
+        # vehicle rectangle vertices
+        self.VRX = [self.LF, self.LF, -self.LB, -self.LB, self.LF]
+        self.VRY = [self.W / 2, -self.W / 2, -self.W / 2, self.W / 2, self.W / 2]
 
-def check_car_collision(x_list, y_list, yaw_list, ox, oy, kd_tree):
-    for i_x, i_y, i_yaw in zip(x_list, y_list, yaw_list):
-        cx = i_x + BUBBLE_DIST * cos(i_yaw)
-        cy = i_y + BUBBLE_DIST * sin(i_yaw)
+    def check_car_collision(self, x_list, y_list, yaw_list, ox, oy, kd_tree):
+        for i_x, i_y, i_yaw in zip(x_list, y_list, yaw_list):
+            cx = i_x + self.BUBBLE_DIST * cos(i_yaw)
+            cy = i_y + self.BUBBLE_DIST * sin(i_yaw)
 
-        ids = kd_tree.query_ball_point([cx, cy], BUBBLE_R)
+            ids = kd_tree.query_ball_point([cx, cy], self.BUBBLE_R)
 
-        if not ids:
-            continue
+            if not ids:
+                continue
 
-        if not rectangle_check(i_x, i_y, i_yaw,
-                               [ox[i] for i in ids], [oy[i] for i in ids]):
-            return False  # collision
+            if not self.rectangle_check(
+                i_x, i_y, i_yaw, [ox[i] for i in ids], [oy[i] for i in ids]
+            ):
+                return False  # collision
 
-    return True  # no collision
+        return True  # no collision
 
+    def rectangle_check(self, x, y, yaw, ox, oy):
+        # transform obstacles to base link frame
+        rot = rot_mat_2d(yaw)
+        for iox, ioy in zip(ox, oy):
+            tx = iox - x
+            ty = ioy - y
+            converted_xy = np.stack([tx, ty]).T @ rot
+            rx, ry = converted_xy[0], converted_xy[1]
 
-def rectangle_check(x, y, yaw, ox, oy):
-    # transform obstacles to base link frame
-    rot = rot_mat_2d(yaw)
-    for iox, ioy in zip(ox, oy):
-        tx = iox - x
-        ty = ioy - y
-        converted_xy = np.stack([tx, ty]).T @ rot
-        rx, ry = converted_xy[0], converted_xy[1]
+            if not (
+                rx > self.LF or rx < -self.LB or ry > self.W / 2.0 or ry < -self.W / 2.0
+            ):
+                return False  # collision
 
-        if not (rx > LF or rx < -LB or ry > W / 2.0 or ry < -W / 2.0):
-            return False  # collision
+        return True  # no collision
 
-    return True  # no collision
+    def pi_2_pi(self, angle):
+        return (angle + pi) % (2 * pi) - pi
 
-
-def plot_arrow(x, y, yaw, length=1.0, width=0.5, fc="r", ec="k"):
-    """Plot arrow."""
-    if not isinstance(x, float):
-        for (i_x, i_y, i_yaw) in zip(x, y, yaw):
-            plot_arrow(i_x, i_y, i_yaw)
-    else:
-        plt.arrow(x, y, length * cos(yaw), length * sin(yaw),
-                  fc=fc, ec=ec, head_width=width, head_length=width, alpha=0.4)
-
-
-def plot_car(x, y, yaw):
-    car_color = '-k'
-    c, s = cos(yaw), sin(yaw)
-    rot = rot_mat_2d(-yaw)
-    car_outline_x, car_outline_y = [], []
-    for rx, ry in zip(VRX, VRY):
-        converted_xy = np.stack([rx, ry]).T @ rot
-        car_outline_x.append(converted_xy[0]+x)
-        car_outline_y.append(converted_xy[1]+y)
-
-    arrow_x, arrow_y, arrow_yaw = c * 1.5 + x, s * 1.5 + y, yaw
-    plot_arrow(arrow_x, arrow_y, arrow_yaw)
-
-    plt.plot(car_outline_x, car_outline_y, car_color)
-
-
-def pi_2_pi(angle):
-    return (angle + pi) % (2 * pi) - pi
-
-
-def move(x, y, yaw, distance, steer, L=WB):
-    x += distance * cos(yaw)
-    y += distance * sin(yaw)
-    yaw += pi_2_pi(distance * tan(steer) / L)  # distance/2
-    return x, y, yaw
-
-
-def main():
-    x, y, yaw = 0., 0., 1.
-    plt.axis('equal')
-    plot_car(x, y, yaw)
-    plt.show()
-
-
-if __name__ == '__main__':
-    main()
+    def move(self, x, y, yaw, distance, steer, L=3.0):
+        x += distance * cos(yaw)
+        y += distance * sin(yaw)
+        yaw += self.pi_2_pi(distance * tan(steer) / L)  # distance/2
+        return x, y, yaw
