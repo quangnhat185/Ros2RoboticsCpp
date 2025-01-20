@@ -18,6 +18,7 @@ using namespace std::chrono_literals;
 
 // TODO: Add Goal marker
 // TODO: Add trajectory
+// TODO: Use config file for parameters
 
 class HAstarRunner : public rclcpp::Node
 {
@@ -216,7 +217,6 @@ int main(int argc, char** argv)
 
     auto response = node->send_request();
     node->run(response);
-    rclcpp::spin(node);
     rclcpp::shutdown();
 
     return 0;
