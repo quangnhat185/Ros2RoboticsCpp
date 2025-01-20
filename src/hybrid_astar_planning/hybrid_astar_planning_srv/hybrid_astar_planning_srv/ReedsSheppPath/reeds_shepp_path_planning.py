@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from hybrid_astar_planning_srv.utils.angle import angle_mod
 
-show_animation = True
-
-
 class Path:
     """
     Path data container
@@ -431,44 +428,3 @@ def reeds_shepp_path_planning(sx, sy, syaw, gx, gy, gyaw, maxc, step_size=0.2):
 
     return b_path.x, b_path.y, b_path.yaw, b_path.ctypes, b_path.lengths
 
-
-def main():
-    print("Reeds Shepp path planner sample start!!")
-
-    start_x = -1.0  # [m]
-    start_y = -4.0  # [m]
-    start_yaw = np.deg2rad(-20.0)  # [rad]
-
-    end_x = 5.0  # [m]
-    end_y = 5.0  # [m]
-    end_yaw = np.deg2rad(25.0)  # [rad]
-
-    curvature = 0.1
-    step_size = 0.05
-
-    xs, ys, yaws, modes, lengths = reeds_shepp_path_planning(start_x, start_y,
-                                                             start_yaw, end_x,
-                                                             end_y, end_yaw,
-                                                             curvature,
-                                                             step_size)
-
-    if not xs:
-        assert False, "No path"
-
-    if show_animation:  # pragma: no cover
-        plt.cla()
-        plt.plot(xs, ys, label="final course " + str(modes))
-        print(f"{lengths=}")
-
-        # plotting
-        plot_arrow(start_x, start_y, start_yaw)
-        plot_arrow(end_x, end_y, end_yaw)
-
-        plt.legend()
-        plt.grid(True)
-        plt.axis("equal")
-        plt.show()
-
-
-if __name__ == '__main__':
-    main()
