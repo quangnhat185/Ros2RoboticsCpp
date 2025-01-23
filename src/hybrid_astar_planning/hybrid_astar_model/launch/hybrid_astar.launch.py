@@ -1,8 +1,9 @@
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.substitutions import Command
-from ament_index_python.packages import get_package_share_directory
 import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.substitutions import Command
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -14,6 +15,12 @@ def generate_launch_description():
 
     rviz_path = os.path.join(
         get_package_share_directory("hybrid_astar_model"), "rviz", "view.rviz"
+    )
+
+    config_path = os.path.join(
+        get_package_share_directory("hybrid_astar_planning_srv"),
+        "config",
+        "params.yaml",
     )
 
     robot_state_publisher = Node(
@@ -36,6 +43,7 @@ def generate_launch_description():
         package="hybrid_astar_planning_srv",
         executable="planning_server_node",
         name="planning_server_node",
+        parameters=[config_path],
     )
 
     hybrid_astar = Node(

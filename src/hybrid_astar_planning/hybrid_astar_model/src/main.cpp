@@ -16,7 +16,6 @@ using namespace std;
 using namespace hybrid_astar_model;
 using namespace std::chrono_literals;
 
-// TODO: Use config file for parameters
 // TODO: Visualization, documentation, linting
 class HAstarRunner : public rclcpp::Node
 {

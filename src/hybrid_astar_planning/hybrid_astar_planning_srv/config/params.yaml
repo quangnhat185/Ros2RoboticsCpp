@@ -1,7 +1,7 @@
 planning_server_node:
   ros__parameters:
     WB: 3.0
-    W: 2.0
+    W: 3.0
     LF: 3.3  # distance from rear to vehicle front end
     LB: 1.0  # distance from rear to vehicle back end
     MAX_STEER: 0.6  # [rad] maximum steering angle
