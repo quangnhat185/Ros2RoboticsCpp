@@ -4,6 +4,7 @@ from rclpy.node import Node
 
 from .hybrid_a_star import HybridAstar
 
+
 class PlanningServer(Node):
     def __init__(self):
         super().__init__("planning_server_node")
