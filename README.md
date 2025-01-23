@@ -15,8 +15,11 @@ Implement popular robotics algorithms in C++ and ROS2
     - Path Planning
         - [x] Dynamic Window Approach
         - [x] A* 
-        - [ ] Probabilistic Road-Map
-        - [ ] Rapid-Exploring Random Trees (RRT)
+        - [x] Hybrid Astar 
+    - Control
+        - [ ] PID
+        - [ ] LQR
+        - [ ] MPC
 
 ## Localization 
 - [**EKF_localization**](./src/ekf_localization/)
@@ -130,7 +133,16 @@ Implement popular robotics algorithms in C++ and ROS2
     <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/fastSlam.gif" width="960" />
     </p>   
 
+- [**Hybrid A Star**](src/hybrid_astar_planning)
+    * Black Markers: Environment including boundary and obstacles
+    * Red marker: Obstacle
 
+    ```bash
+    ros2 launch hybrid_astar_model hybrid_astar.launch.py
+    ```
+
+    <p align="center">
+    <img src="https://github.com/quangnhat185/Media/blob/main/ros2RoboticsCpp/Hybrid_astar.gif" width="960" />
 
 ## Reference
 [AtsushiSakai/PythonRobotics](https://github.com/AtsushiSakai/PythonRobotics)
