@@ -16,11 +16,8 @@ using namespace std;
 using namespace hybrid_astar_model;
 using namespace std::chrono_literals;
 
-// TODO: Add Goal marker
-// TODO: Add trajectory
 // TODO: Use config file for parameters
-// TODO: Create launch files
-
+// TODO: Visualization, documentation, linting
 class HAstarRunner : public rclcpp::Node
 {
   private:
@@ -37,7 +34,7 @@ class HAstarRunner : public rclcpp::Node
 
   public:
     HAstarRunner(vector<float>& start, vector<float>& goal, vector<float>& ox, vector<float>& oy)
-      : Node("hybrid_astar_model_node")
+      : Node("hybrid_astar_node")
       , start(start)
       , goal(goal)
       , ox(ox)
